@@ -4,7 +4,7 @@ local HttpGet = game.HttpGet
 local GameId: number = game.GameId
 
 local Games: {[number]: string} = loadstring(
-  HttpGet(game, "https://github.com/slayeryx/luxhub/blob/main/GameList.lua")
+  HttpGet(game, "https://raw.githubusercontent.com/slayeryx/Aether/refs/heads/main/gamelist.lua")
 )() :: any
 
 local URL: string? = Games[GameId]
