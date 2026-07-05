@@ -20,7 +20,7 @@ repeat task.wait() until game:IsLoaded()
 local cloneref = cloneref or function(obj) return obj end
 local gethui = gethui or function() return cloneref(game:GetService("CoreGui")) end
 
--- services
+--services
 local TweenService = cloneref(game:GetService("TweenService"))
 local UserInputService = cloneref(game:GetService("UserInputService"))
 local HttpService = cloneref(game:GetService("HttpService"))
@@ -31,44 +31,45 @@ local Players = cloneref(game:GetService("Players"))
 
 local hui = gethui()
 
-if getgenv().AetherLoaded and hui:FindFirstChild("AetherKeySystem") then return getgenv().Aether end
-if getgenv().AetherLoaded and hui:FindFirstChild("AetherKeylessSystem") then return getgenv().Aether end
-getgenv().AetherLoaded = true
-getgenv().AetherClosed = false
+if getgenv().ArqelLoaded and hui:FindFirstChild("ArqelKeySystem") then return getgenv().Arqel end
+if getgenv().ArqelLoaded and hui:FindFirstChild("ArqelKeylessSystem") then return getgenv().Arqel end
+getgenv().ArqelLoaded = true
+getgenv().ArqelClosed = false
 
-local Aether = {}
+local Arqel = {}
 
--- appearance
-Aether.Appearance = {
-    Title = "Aether",
+--appearance
+Arqel.Appearance = {
+    Title = "Arqel",
     Subtitle = "Enter your key to continue",
     Icon = "rbxassetid://95721401302279",
     IconSize = UDim2.new(0, 30, 0, 30)
 }
 
--- links
-Aether.Links = {
+--links
+Arqel.Links = {
     GetKey = "",
     Discord = ""
 }
 
--- storage
-Aether.Storage = {
-    FileName = "Aether_Key",
+--storage
+Arqel.Storage = {
+    FileName = "Arqel_Key",
     Remember = true,
     AutoLoad = true
 }
 
--- options
-Aether.Options = {
+--options
+Arqel.Options = {
     Keyless = nil,
     KeylessUI = false,
     Blur = true,
-    Draggable = true
+    Draggable = true,
+    NoGetKey = false
 }
 
--- theme
-Aether.Theme = {
+--theme
+Arqel.Theme = {
     Accent = Color3.fromRGB(139, 0, 0),
     AccentHover = Color3.fromRGB(170, 20, 20),
     Background = Color3.fromRGB(15, 15, 15),
@@ -86,18 +87,18 @@ Aether.Theme = {
     Pending = Color3.fromRGB(60, 60, 60)
 }
 
--- callbacks
-Aether.Callbacks = {
+--callbacks
+Arqel.Callbacks = {
     OnVerify = nil,
     OnSuccess = nil,
     OnFail = nil,
     OnClose = nil
 }
 
-Aether.Changelog = {}
+Arqel.Changelog = {}
 
--- shop
-Aether.Shop = {
+--shop
+Arqel.Shop = {
     Enabled = false,
     Icon = "",
     Title = "Get Premium Access",
@@ -106,7 +107,7 @@ Aether.Shop = {
     Link = ""
 }
 
--- internal
+--internal
 local Internal = {
     Junkie = nil,
     BlurEffect = nil,
@@ -116,7 +117,7 @@ local Internal = {
     IconsLoaded = false
 }
 
-local IconBaseURL = "https://raw.githubusercontent.com/DuxiiT/Aether/main/Sources/KeyIcons/"
+local IconBaseURL = "https://raw.githubusercontent.com/Cobruhehe/expert-octo-doodle/main/Icons/"
 local IconFiles = {
     key = "lucide--key.png",
     shield = "lucide--shield-minus.png",
@@ -131,7 +132,8 @@ local IconFiles = {
     logo = "rrjlGmac.png",
     user = "U.png",
     clock = "Clock.png",
-    cart = "Cart.png"
+    cart = "Cart.png",
+    nogetkey = "lucide--lock.png"
 }
 
 local FallbackIcons = {
@@ -148,11 +150,12 @@ local FallbackIcons = {
     logo = "rbxassetid://95721401302279",
     user = "rbxassetid://77400125196692",
     clock = "rbxassetid://87505349362628",
-    cart = "rbxassetid://114754518183872"
+    cart = "rbxassetid://114754518183872",
+    nogetkey = "rbxassetid://119765975153029"
 }
 
 local CachedIcons = {}
-local FolderName = "Aether"
+local FolderName = "Arqel"
 local IconsFolder = "Icons"
 local DefaultLogoAsset = "rbxassetid://95721401302279"
 
@@ -177,11 +180,11 @@ end
 local fileSystemSupported = hasFileSystem()
 
 local function getFileName()
-    return FolderName .. "/" .. Aether.Storage.FileName .. ".txt"
+    return FolderName .. "/" .. Arqel.Storage.FileName .. ".txt"
 end
 
 local function saveKey(key)
-    if not fileSystemSupported or not Aether.Storage.Remember then return false end
+    if not fileSystemSupported or not Arqel.Storage.Remember then return false end
     return pcall(function() writefile(getFileName(), key) end)
 end
 
@@ -244,26 +247,26 @@ local function getIcon(iconName)
 end
 
 local function getLogoIcon()
-    if Aether.Appearance.Icon == DefaultLogoAsset then return getIcon("logo") end
-    return Aether.Appearance.Icon
+    if Arqel.Appearance.Icon == DefaultLogoAsset then return getIcon("logo") end
+    return Arqel.Appearance.Icon
 end
 
 local function shouldDownloadLogo()
-    return Aether.Appearance.Icon == DefaultLogoAsset
+    return Arqel.Appearance.Icon == DefaultLogoAsset
 end
 
 local function getShopIcon()
-    if Aether.Shop.Icon == "" then return getLogoIcon() end
-    return Aether.Shop.Icon
+    if Arqel.Shop.Icon == "" then return getLogoIcon() end
+    return Arqel.Shop.Icon
 end
 
 local function isShopEnabled()
-    return Aether.Shop.Enabled
+    return Arqel.Shop.Enabled
 end
 
 local function allIconsCached()
     if not fileSystemSupported then return false end
-    local iconNames = {"key", "shield", "check", "copy", "discord", "alert", "lock", "loading", "close", "changelog", "user", "clock", "cart"}
+    local iconNames = {"key", "shield", "check", "copy", "discord", "alert", "lock", "loading", "close", "changelog", "user", "clock", "cart", "nogetkey"}
     if shouldDownloadLogo() then table.insert(iconNames, "logo") end
     for _, name in ipairs(iconNames) do
         if not isIconCached(name) then return false end
@@ -273,7 +276,7 @@ end
 
 local function loadAllIconsFromCache()
     ensureFolders()
-    local iconNames = {"key", "shield", "check", "copy", "discord", "alert", "lock", "loading", "close", "changelog", "user", "clock", "cart"}
+    local iconNames = {"key", "shield", "check", "copy", "discord", "alert", "lock", "loading", "close", "changelog", "user", "clock", "cart", "nogetkey"}
     if shouldDownloadLogo() then table.insert(iconNames, "logo") end
     for _, name in ipairs(iconNames) do downloadIcon(name) end
     Internal.IconsLoaded = true
@@ -332,11 +335,11 @@ local function formatDate()
 end
 
 local function enableBlur()
-    if not Aether.Options.Blur then return end
-    local existing = Lighting:FindFirstChild("AetherKeySystemBlur")
+    if not Arqel.Options.Blur then return end
+    local existing = Lighting:FindFirstChild("ArqelKeySystemBlur")
     if existing then existing:Destroy() end
     Internal.BlurEffect = Instance.new("BlurEffect")
-    Internal.BlurEffect.Name = "AetherKeySystemBlur"
+    Internal.BlurEffect.Name = "ArqelKeySystemBlur"
     Internal.BlurEffect.Size = 0
     Internal.BlurEffect.Parent = Lighting
     TweenService:Create(Internal.BlurEffect, TweenInfo.new(0.4, Enum.EasingStyle.Quart), {Size = 24}):Play()
@@ -352,26 +355,26 @@ local function disableBlur()
             end
         end)
     else
-        local existing = Lighting:FindFirstChild("AetherKeySystemBlur")
+        local existing = Lighting:FindFirstChild("ArqelKeySystemBlur")
         if existing then existing:Destroy() end
         Internal.BlurEffect = nil
     end
 end
 
 local function fullCleanup()
-    getgenv().AetherLoaded = false
-    getgenv().AetherClosed = true
+    getgenv().ArqelLoaded = false
+    getgenv().ArqelClosed = true
     disableBlur()
-    local gui1 = hui:FindFirstChild("AetherKeySystem")
-    local gui2 = hui:FindFirstChild("AetherKeylessSystem")
-    local gui3 = hui:FindFirstChild("AetherLoadingScreen")
+    local gui1 = hui:FindFirstChild("ArqelKeySystem")
+    local gui2 = hui:FindFirstChild("ArqelKeylessSystem")
+    local gui3 = hui:FindFirstChild("ArqelLoadingScreen")
     if gui1 then gui1:Destroy() end
     if gui2 then gui2:Destroy() end
     if gui3 then gui3:Destroy() end
 end
 
 local function setupDragging(header, main)
-    if not Aether.Options.Draggable then return end
+    if not Arqel.Options.Draggable then return end
     local dragging, dragStart, startPos, dragInput
     header.InputBegan:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
@@ -422,7 +425,7 @@ local function CreateDoorOverlay(parentFrame, width, height)
     leftDoor.Name = "LeftDoor"
     leftDoor.Size = UDim2.new(0.5, 0, 1, 0)
     leftDoor.Position = UDim2.new(0, 0, 0, 0)
-    leftDoor.BackgroundColor3 = Aether.Theme.Header
+    leftDoor.BackgroundColor3 = Arqel.Theme.Header
     leftDoor.BorderSizePixel = 0
     leftDoor.ZIndex = 51
     leftDoor.Parent = overlay
@@ -431,7 +434,7 @@ local function CreateDoorOverlay(parentFrame, width, height)
     rightDoor.Name = "RightDoor"
     rightDoor.Size = UDim2.new(0.5, 0, 1, 0)
     rightDoor.Position = UDim2.new(0.5, 0, 0, 0)
-    rightDoor.BackgroundColor3 = Aether.Theme.Header
+    rightDoor.BackgroundColor3 = Arqel.Theme.Header
     rightDoor.BorderSizePixel = 0
     rightDoor.ZIndex = 51
     rightDoor.Parent = overlay
@@ -444,7 +447,7 @@ local function CreateDoorOverlay(parentFrame, width, height)
     logoImage.AnchorPoint = Vector2.new(0.5, 0.5)
     logoImage.BackgroundTransparency = 1
     logoImage.Image = getLogoIcon()
-    logoImage.ImageColor3 = Aether.Theme.Text
+    logoImage.ImageColor3 = Arqel.Theme.Text
     logoImage.ScaleType = Enum.ScaleType.Fit
     logoImage.ZIndex = 54
     logoImage.Parent = overlay
@@ -479,18 +482,18 @@ end
 
 local function ShowLoadingScreen(onComplete)
     local completed = false
-    local oldGui = hui:FindFirstChild("AetherLoadingScreen")
+    local oldGui = hui:FindFirstChild("ArqelLoadingScreen")
     if oldGui then oldGui:Destroy() end
-    local oldBlur = Lighting:FindFirstChild("AetherLoadingBlur")
+    local oldBlur = Lighting:FindFirstChild("ArqelLoadingBlur")
     if oldBlur then oldBlur:Destroy() end
 
     local blurEffect = Instance.new("BlurEffect")
-    blurEffect.Name = "AetherLoadingBlur"
+    blurEffect.Name = "ArqelLoadingBlur"
     blurEffect.Size = 0
     blurEffect.Parent = Lighting
 
     local gui = Instance.new("ScreenGui")
-    gui.Name = "AetherLoadingScreen"
+    gui.Name = "ArqelLoadingScreen"
     gui.ResetOnSpawn = false
     gui.IgnoreGuiInset = true
     gui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
@@ -516,7 +519,7 @@ local function ShowLoadingScreen(onComplete)
         local line = Instance.new("Frame")
         line.Size = UDim2.new(0.3, 0, 0, mobile and 2 or 3)
         line.Position = UDim2.new(1.3, 0, linePositions[i], 0)
-        line.BackgroundColor3 = Aether.Theme.Text
+        line.BackgroundColor3 = Arqel.Theme.Text
         line.BackgroundTransparency = 1
         line.BorderSizePixel = 0
         line.Parent = linesContainer
@@ -536,7 +539,7 @@ local function ShowLoadingScreen(onComplete)
     shipBody.Size = UDim2.new(0, shipSize, 0, shipSize)
     shipBody.Position = UDim2.new(0.5, 10, 0.5, 0)
     shipBody.AnchorPoint = Vector2.new(0.5, 0.5)
-    shipBody.BackgroundColor3 = Aether.Theme.Text
+    shipBody.BackgroundColor3 = Arqel.Theme.Text
     shipBody.BackgroundTransparency = 1
     shipBody.BorderSizePixel = 0
     shipBody.Parent = shipContainer
@@ -547,7 +550,7 @@ local function ShowLoadingScreen(onComplete)
     shipPoint.Size = UDim2.new(0, pointSize, 0, pointSize)
     shipPoint.Position = UDim2.new(1, 2, 0.5, 0)
     shipPoint.AnchorPoint = Vector2.new(0, 0.5)
-    shipPoint.BackgroundColor3 = Aether.Theme.Text
+    shipPoint.BackgroundColor3 = Arqel.Theme.Text
     shipPoint.BackgroundTransparency = 1
     shipPoint.BorderSizePixel = 0
     shipPoint.Rotation = 45
@@ -566,7 +569,7 @@ local function ShowLoadingScreen(onComplete)
         trail.Size = UDim2.new(0, config.width, 0, mobile and 2 or 3)
         trail.Position = UDim2.new(0.5, -15, config.y, 0)
         trail.AnchorPoint = Vector2.new(1, 0.5)
-        trail.BackgroundColor3 = Aether.Theme.Text
+        trail.BackgroundColor3 = Arqel.Theme.Text
         trail.BackgroundTransparency = 1
         trail.BorderSizePixel = 0
         trail.Parent = shipContainer
@@ -604,7 +607,7 @@ local function ShowLoadingScreen(onComplete)
         indicator.Size = UDim2.new(0, mobile and 22 or 28, 0, mobile and 22 or 28)
         indicator.BackgroundTransparency = 1
         indicator.Text = "○"
-        indicator.TextColor3 = Aether.Theme.Pending
+        indicator.TextColor3 = Arqel.Theme.Pending
         indicator.TextSize = phaseTextSize
         indicator.Font = Enum.Font.ArimoBold
         indicator.TextTransparency = 1
@@ -615,7 +618,7 @@ local function ShowLoadingScreen(onComplete)
         label.Position = UDim2.new(0, mobile and 28 or 35, 0, 0)
         label.BackgroundTransparency = 1
         label.Text = name
-        label.TextColor3 = Aether.Theme.Pending
+        label.TextColor3 = Arqel.Theme.Pending
         label.TextSize = phaseTextSize
         label.Font = Enum.Font.ArimoBold
         label.TextXAlignment = Enum.TextXAlignment.Left
@@ -667,13 +670,13 @@ local function ShowLoadingScreen(onComplete)
             local p = phases[i]
             if i < num then
                 p.indicator.Text = "●"
-                TweenService:Create(p.indicator, TweenInfo.new(0.2), {TextColor3 = Aether.Theme.Success, TextTransparency = 0}):Play()
-                TweenService:Create(p.label, TweenInfo.new(0.2), {TextColor3 = Aether.Theme.Success}):Play()
+                TweenService:Create(p.indicator, TweenInfo.new(0.2), {TextColor3 = Arqel.Theme.Success, TextTransparency = 0}):Play()
+                TweenService:Create(p.label, TweenInfo.new(0.2), {TextColor3 = Arqel.Theme.Success}):Play()
             elseif i == num then
                 p.indicator.Text = "●"
                 p.indicator.TextTransparency = 0
-                TweenService:Create(p.indicator, TweenInfo.new(0.2), {TextColor3 = Aether.Theme.Accent}):Play()
-                TweenService:Create(p.label, TweenInfo.new(0.2), {TextColor3 = Aether.Theme.Text}):Play()
+                TweenService:Create(p.indicator, TweenInfo.new(0.2), {TextColor3 = Arqel.Theme.Accent}):Play()
+                TweenService:Create(p.label, TweenInfo.new(0.2), {TextColor3 = Arqel.Theme.Text}):Play()
                 currentPhase = num
                 pulseThread = task.spawn(function()
                     while currentPhase == num do
@@ -686,8 +689,8 @@ local function ShowLoadingScreen(onComplete)
                 end)
             else
                 p.indicator.Text = "○"
-                p.indicator.TextColor3 = Aether.Theme.Pending
-                p.label.TextColor3 = Aether.Theme.Pending
+                p.indicator.TextColor3 = Arqel.Theme.Pending
+                p.label.TextColor3 = Arqel.Theme.Pending
             end
         end
     end
@@ -713,7 +716,7 @@ local function ShowLoadingScreen(onComplete)
         task.wait(0.3)
         setPhase(2) ensureFolders() task.wait(0.25)
         setPhase(3)
-        local iconNames = {"key", "shield", "check", "copy", "discord", "alert", "lock", "loading", "close", "changelog", "user", "clock", "cart"}
+        local iconNames = {"key", "shield", "check", "copy", "discord", "alert", "lock", "loading", "close", "changelog", "user", "clock", "cart", "nogetkey"}
         if shouldDownloadLogo() then table.insert(iconNames, "logo") end
         for _, name in ipairs(iconNames) do downloadIcon(name) task.wait(0.06) end
         Internal.IconsLoaded = true
@@ -750,7 +753,7 @@ local function EnsureIconsReady(callback)
     end
 end
 
-function Aether:Notify(title, message, duration, iconType)
+function Arqel:Notify(title, message, duration, iconType)
     duration = duration or 5
     iconType = iconType or "info"
     local scale = getScale()
@@ -766,13 +769,13 @@ function Aether:Notify(title, message, duration, iconType)
     frame.Size = UDim2.new(0, width, 0, height)
     frame.Position = UDim2.new(1, width + 20, 1, -15)
     frame.AnchorPoint = Vector2.new(1, 1)
-    frame.BackgroundColor3 = Aether.Theme.Header
+    frame.BackgroundColor3 = Arqel.Theme.Header
     frame.BorderSizePixel = 0
     frame.Parent = notifGui
     Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 4)
 
     local stroke = Instance.new("UIStroke", frame)
-    stroke.Color = Aether.Theme.Accent
+    stroke.Color = Arqel.Theme.Accent
     stroke.Thickness = 1
     stroke.Transparency = 0.7
 
@@ -785,7 +788,7 @@ function Aether:Notify(title, message, duration, iconType)
 
     local progressBar = Instance.new("Frame")
     progressBar.Size = UDim2.new(1, 0, 1, 0)
-    progressBar.BackgroundColor3 = Aether.Theme.Accent
+    progressBar.BackgroundColor3 = Arqel.Theme.Accent
     progressBar.BorderSizePixel = 0
     progressBar.Parent = progressBg
 
@@ -799,11 +802,11 @@ function Aether:Notify(title, message, duration, iconType)
     icon.Parent = frame
 
     local iconMap = {
-        success = {"check", Aether.Theme.Success}, error = {"alert", Aether.Theme.Error},
-        warning = {"alert", Aether.Theme.Warning}, shield = {"shield", Aether.Theme.Accent},
-        info = {"shield", Aether.Theme.Accent}, key = {"key", Aether.Theme.Accent},
-        copy = {"copy", Aether.Theme.Success}, discord = {"discord", Aether.Theme.Discord},
-        close = {"close", Aether.Theme.Error}
+        success = {"check", Arqel.Theme.Success}, error = {"alert", Arqel.Theme.Error},
+        warning = {"alert", Arqel.Theme.Warning}, shield = {"shield", Arqel.Theme.Accent},
+        info = {"shield", Arqel.Theme.Accent}, key = {"key", Arqel.Theme.Accent},
+        copy = {"copy", Arqel.Theme.Success}, discord = {"discord", Arqel.Theme.Discord},
+        close = {"close", Arqel.Theme.Error}, nogetkey = {"nogetkey", Arqel.Theme.TextDim}
     }
 
     if iconMap[iconType] then
@@ -811,7 +814,7 @@ function Aether:Notify(title, message, duration, iconType)
         icon.ImageColor3 = iconMap[iconType][2]
     else
         icon.Image = getLogoIcon()
-        icon.ImageColor3 = Aether.Theme.Text
+        icon.ImageColor3 = Arqel.Theme.Text
     end
 
     local textX = 14 + iconSize + 14
@@ -822,7 +825,7 @@ function Aether:Notify(title, message, duration, iconType)
     titleLabel.Font = Enum.Font.ArimoBold
     titleLabel.TextSize = math.clamp(15 * scale, 13, 18)
     titleLabel.TextXAlignment = Enum.TextXAlignment.Left
-    titleLabel.TextColor3 = Aether.Theme.Text
+    titleLabel.TextColor3 = Arqel.Theme.Text
     titleLabel.Text = title
     titleLabel.TextTruncate = Enum.TextTruncate.AtEnd
     titleLabel.Parent = frame
@@ -834,7 +837,7 @@ function Aether:Notify(title, message, duration, iconType)
     messageLabel.Font = Enum.Font.ArimoBold
     messageLabel.TextSize = math.clamp(13 * scale, 11, 15)
     messageLabel.TextXAlignment = Enum.TextXAlignment.Left
-    messageLabel.TextColor3 = Aether.Theme.TextDim
+    messageLabel.TextColor3 = Arqel.Theme.TextDim
     messageLabel.Text = message
     messageLabel.TextTruncate = Enum.TextTruncate.AtEnd
     messageLabel.Parent = frame
@@ -886,20 +889,20 @@ local function CreateChangelogPanel(parent, windowWidth, panelHeight, panelWidth
     panel.Name = "ChangelogPanel"
     panel.Size = UDim2.new(0, 0, 0, panelHeight)
     panel.Position = UDim2.new(1, gap, 0, 0)
-    panel.BackgroundColor3 = Aether.Theme.Background
+    panel.BackgroundColor3 = Arqel.Theme.Background
     panel.BorderSizePixel = 0
     panel.ClipsDescendants = true
     panel.Parent = mainFrame
     Instance.new("UICorner", panel).CornerRadius = UDim.new(0, 4)
 
     local panelStroke = Instance.new("UIStroke", panel)
-    panelStroke.Color = Aether.Theme.Accent
+    panelStroke.Color = Arqel.Theme.Accent
     panelStroke.Thickness = 2
     panelStroke.Transparency = 1
 
     local panelHeader = Instance.new("Frame")
     panelHeader.Size = UDim2.new(1, 0, 0, 50)
-    panelHeader.BackgroundColor3 = Aether.Theme.Header
+    panelHeader.BackgroundColor3 = Arqel.Theme.Header
     panelHeader.BorderSizePixel = 0
     panelHeader.Parent = panel
     Instance.new("UICorner", panelHeader).CornerRadius = UDim.new(0, 4)
@@ -907,14 +910,14 @@ local function CreateChangelogPanel(parent, windowWidth, panelHeight, panelWidth
     local panelHeaderFix = Instance.new("Frame")
     panelHeaderFix.Size = UDim2.new(1, 0, 0, 8)
     panelHeaderFix.Position = UDim2.new(0, 0, 1, -8)
-    panelHeaderFix.BackgroundColor3 = Aether.Theme.Header
+    panelHeaderFix.BackgroundColor3 = Arqel.Theme.Header
     panelHeaderFix.BorderSizePixel = 0
     panelHeaderFix.Parent = panelHeader
 
     local panelHeaderLine = Instance.new("Frame")
     panelHeaderLine.Size = UDim2.new(1, 0, 0, 1)
     panelHeaderLine.Position = UDim2.new(0, 0, 1, 0)
-    panelHeaderLine.BackgroundColor3 = Aether.Theme.Accent
+    panelHeaderLine.BackgroundColor3 = Arqel.Theme.Accent
     panelHeaderLine.BackgroundTransparency = 0.6
     panelHeaderLine.BorderSizePixel = 0
     panelHeaderLine.Parent = panelHeader
@@ -925,7 +928,7 @@ local function CreateChangelogPanel(parent, windowWidth, panelHeight, panelWidth
     panelHeaderIcon.AnchorPoint = Vector2.new(0, 0.5)
     panelHeaderIcon.BackgroundTransparency = 1
     panelHeaderIcon.Image = getIcon("changelog")
-    panelHeaderIcon.ImageColor3 = Aether.Theme.Accent
+    panelHeaderIcon.ImageColor3 = Arqel.Theme.Accent
     panelHeaderIcon.ScaleType = Enum.ScaleType.Fit
     panelHeaderIcon.Parent = panelHeader
 
@@ -934,7 +937,7 @@ local function CreateChangelogPanel(parent, windowWidth, panelHeight, panelWidth
     panelTitle.Position = UDim2.new(0, 34, 0, 0)
     panelTitle.BackgroundTransparency = 1
     panelTitle.Text = "Changelog"
-    panelTitle.TextColor3 = Aether.Theme.Text
+    panelTitle.TextColor3 = Arqel.Theme.Text
     panelTitle.TextSize = 16
     panelTitle.Font = Enum.Font.ArimoBold
     panelTitle.TextXAlignment = Enum.TextXAlignment.Left
@@ -946,11 +949,11 @@ local function CreateChangelogPanel(parent, windowWidth, panelHeight, panelWidth
     panelClose.AnchorPoint = Vector2.new(1, 0.5)
     panelClose.BackgroundTransparency = 1
     panelClose.Image = getIcon("close")
-    panelClose.ImageColor3 = Aether.Theme.TextDim
+    panelClose.ImageColor3 = Arqel.Theme.TextDim
     panelClose.ScaleType = Enum.ScaleType.Fit
     panelClose.Parent = panelHeader
-    panelClose.MouseEnter:Connect(function() TweenService:Create(panelClose, TweenInfo.new(0.15), {ImageColor3 = Aether.Theme.Error}):Play() end)
-    panelClose.MouseLeave:Connect(function() TweenService:Create(panelClose, TweenInfo.new(0.15), {ImageColor3 = Aether.Theme.TextDim}):Play() end)
+    panelClose.MouseEnter:Connect(function() TweenService:Create(panelClose, TweenInfo.new(0.15), {ImageColor3 = Arqel.Theme.Error}):Play() end)
+    panelClose.MouseLeave:Connect(function() TweenService:Create(panelClose, TweenInfo.new(0.15), {ImageColor3 = Arqel.Theme.TextDim}):Play() end)
 
     local scrollFrame = Instance.new("ScrollingFrame")
     scrollFrame.Size = UDim2.new(1, 0, 1, -55)
@@ -958,7 +961,7 @@ local function CreateChangelogPanel(parent, windowWidth, panelHeight, panelWidth
     scrollFrame.BackgroundTransparency = 1
     scrollFrame.BorderSizePixel = 0
     scrollFrame.ScrollBarThickness = 4
-    scrollFrame.ScrollBarImageColor3 = Aether.Theme.Accent
+    scrollFrame.ScrollBarImageColor3 = Arqel.Theme.Accent
     scrollFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
     scrollFrame.AutomaticCanvasSize = Enum.AutomaticSize.Y
     scrollFrame.Parent = panel
@@ -973,7 +976,7 @@ local function CreateChangelogPanel(parent, windowWidth, panelHeight, panelWidth
     contentLayout.Padding = UDim.new(0, 10)
     contentLayout.SortOrder = Enum.SortOrder.LayoutOrder
 
-    for i, update in ipairs(Aether.Changelog) do
+    for i, update in ipairs(Arqel.Changelog) do
         local entry = Instance.new("Frame")
         entry.Size = UDim2.new(1, 0, 0, 0)
         entry.AutomaticSize = Enum.AutomaticSize.Y
@@ -988,7 +991,7 @@ local function CreateChangelogPanel(parent, windowWidth, panelHeight, panelWidth
         versionLabel.Size = UDim2.new(1, 0, 0, 22)
         versionLabel.BackgroundTransparency = 1
         versionLabel.Text = update.Version .. "  •  " .. update.Date
-        versionLabel.TextColor3 = Aether.Theme.Accent
+        versionLabel.TextColor3 = Arqel.Theme.Accent
         versionLabel.TextSize = 14
         versionLabel.Font = Enum.Font.ArimoBold
         versionLabel.TextXAlignment = Enum.TextXAlignment.Left
@@ -1001,7 +1004,7 @@ local function CreateChangelogPanel(parent, windowWidth, panelHeight, panelWidth
             changeLabel.AutomaticSize = Enum.AutomaticSize.Y
             changeLabel.BackgroundTransparency = 1
             changeLabel.Text = "  •  " .. change
-            changeLabel.TextColor3 = Aether.Theme.TextDim
+            changeLabel.TextColor3 = Arqel.Theme.TextDim
             changeLabel.TextSize = 12
             changeLabel.Font = Enum.Font.ArimoBold
             changeLabel.TextXAlignment = Enum.TextXAlignment.Left
@@ -1010,7 +1013,7 @@ local function CreateChangelogPanel(parent, windowWidth, panelHeight, panelWidth
             changeLabel.Parent = entry
         end
 
-        if i < #Aether.Changelog then
+        if i < #Arqel.Changelog then
             local divWrapper = Instance.new("Frame")
             divWrapper.Size = UDim2.new(1, 0, 0, 2)
             divWrapper.BackgroundTransparency = 1
@@ -1019,7 +1022,7 @@ local function CreateChangelogPanel(parent, windowWidth, panelHeight, panelWidth
 
             local div = Instance.new("Frame")
             div.Size = UDim2.new(1, 0, 0, 2)
-            div.BackgroundColor3 = Aether.Theme.Divider
+            div.BackgroundColor3 = Arqel.Theme.Divider
             div.BorderSizePixel = 0
             div.Parent = divWrapper
         end
@@ -1060,20 +1063,20 @@ local function CreateUserInfoPanel(parent, windowWidth, panelHeight, panelWidth,
     panel.Size = UDim2.new(0, isOpen and panelWidth or 0, 0, panelHeight)
     panel.Position = UDim2.new(0, -(gap), 0, 0)
     panel.AnchorPoint = Vector2.new(1, 0)
-    panel.BackgroundColor3 = Aether.Theme.Background
+    panel.BackgroundColor3 = Arqel.Theme.Background
     panel.BorderSizePixel = 0
     panel.ClipsDescendants = true
     panel.Parent = mainFrame
     Instance.new("UICorner", panel).CornerRadius = UDim.new(0, 4)
 
     local panelStroke = Instance.new("UIStroke", panel)
-    panelStroke.Color = Aether.Theme.Accent
+    panelStroke.Color = Arqel.Theme.Accent
     panelStroke.Thickness = 2
     panelStroke.Transparency = isOpen and 0.4 or 1
 
     local panelHeader = Instance.new("Frame")
     panelHeader.Size = UDim2.new(1, 0, 0, 50)
-    panelHeader.BackgroundColor3 = Aether.Theme.Header
+    panelHeader.BackgroundColor3 = Arqel.Theme.Header
     panelHeader.BorderSizePixel = 0
     panelHeader.Parent = panel
     Instance.new("UICorner", panelHeader).CornerRadius = UDim.new(0, 4)
@@ -1081,14 +1084,14 @@ local function CreateUserInfoPanel(parent, windowWidth, panelHeight, panelWidth,
     local panelHeaderFix = Instance.new("Frame")
     panelHeaderFix.Size = UDim2.new(1, 0, 0, 8)
     panelHeaderFix.Position = UDim2.new(0, 0, 1, -8)
-    panelHeaderFix.BackgroundColor3 = Aether.Theme.Header
+    panelHeaderFix.BackgroundColor3 = Arqel.Theme.Header
     panelHeaderFix.BorderSizePixel = 0
     panelHeaderFix.Parent = panelHeader
 
     local panelHeaderLine = Instance.new("Frame")
     panelHeaderLine.Size = UDim2.new(1, 0, 0, 1)
     panelHeaderLine.Position = UDim2.new(0, 0, 1, 0)
-    panelHeaderLine.BackgroundColor3 = Aether.Theme.Accent
+    panelHeaderLine.BackgroundColor3 = Arqel.Theme.Accent
     panelHeaderLine.BackgroundTransparency = 0.6
     panelHeaderLine.BorderSizePixel = 0
     panelHeaderLine.Parent = panelHeader
@@ -1099,7 +1102,7 @@ local function CreateUserInfoPanel(parent, windowWidth, panelHeight, panelWidth,
     panelHeaderIcon.AnchorPoint = Vector2.new(0, 0.5)
     panelHeaderIcon.BackgroundTransparency = 1
     panelHeaderIcon.Image = getIcon("user")
-    panelHeaderIcon.ImageColor3 = Aether.Theme.Accent
+    panelHeaderIcon.ImageColor3 = Arqel.Theme.Accent
     panelHeaderIcon.ScaleType = Enum.ScaleType.Fit
     panelHeaderIcon.Parent = panelHeader
 
@@ -1108,7 +1111,7 @@ local function CreateUserInfoPanel(parent, windowWidth, panelHeight, panelWidth,
     panelTitle.Position = UDim2.new(0, 34, 0, 0)
     panelTitle.BackgroundTransparency = 1
     panelTitle.Text = "User Info"
-    panelTitle.TextColor3 = Aether.Theme.Text
+    panelTitle.TextColor3 = Arqel.Theme.Text
     panelTitle.TextSize = 16
     panelTitle.Font = Enum.Font.ArimoBold
     panelTitle.TextXAlignment = Enum.TextXAlignment.Left
@@ -1120,11 +1123,11 @@ local function CreateUserInfoPanel(parent, windowWidth, panelHeight, panelWidth,
     panelClose.AnchorPoint = Vector2.new(1, 0.5)
     panelClose.BackgroundTransparency = 1
     panelClose.Image = getIcon("close")
-    panelClose.ImageColor3 = Aether.Theme.TextDim
+    panelClose.ImageColor3 = Arqel.Theme.TextDim
     panelClose.ScaleType = Enum.ScaleType.Fit
     panelClose.Parent = panelHeader
-    panelClose.MouseEnter:Connect(function() TweenService:Create(panelClose, TweenInfo.new(0.15), {ImageColor3 = Aether.Theme.Error}):Play() end)
-    panelClose.MouseLeave:Connect(function() TweenService:Create(panelClose, TweenInfo.new(0.15), {ImageColor3 = Aether.Theme.TextDim}):Play() end)
+    panelClose.MouseEnter:Connect(function() TweenService:Create(panelClose, TweenInfo.new(0.15), {ImageColor3 = Arqel.Theme.Error}):Play() end)
+    panelClose.MouseLeave:Connect(function() TweenService:Create(panelClose, TweenInfo.new(0.15), {ImageColor3 = Arqel.Theme.TextDim}):Play() end)
 
     local contentFrame = Instance.new("Frame")
     contentFrame.Size = UDim2.new(1, 0, 1, -55)
@@ -1154,14 +1157,14 @@ local function CreateUserInfoPanel(parent, windowWidth, panelHeight, panelWidth,
     avatarGlow.Size = UDim2.new(1, 0, 1, 0)
     avatarGlow.Position = UDim2.new(0.5, 0, 0.5, 0)
     avatarGlow.AnchorPoint = Vector2.new(0.5, 0.5)
-    avatarGlow.BackgroundColor3 = Aether.Theme.Accent
+    avatarGlow.BackgroundColor3 = Arqel.Theme.Accent
     avatarGlow.BackgroundTransparency = 0.5
     avatarGlow.BorderSizePixel = 0
     avatarGlow.Parent = avatarWrapper
     Instance.new("UICorner", avatarGlow).CornerRadius = UDim.new(0, 4)
 
     local avatarGlowStroke = Instance.new("UIStroke", avatarGlow)
-    avatarGlowStroke.Color = Aether.Theme.Accent
+    avatarGlowStroke.Color = Arqel.Theme.Accent
     avatarGlowStroke.Thickness = 1.5
     avatarGlowStroke.Transparency = 0.3
 
@@ -1169,7 +1172,7 @@ local function CreateUserInfoPanel(parent, windowWidth, panelHeight, panelWidth,
     avatarContainer.Size = UDim2.new(0, avatarSize, 0, avatarSize)
     avatarContainer.Position = UDim2.new(0.5, 0, 0.5, 0)
     avatarContainer.AnchorPoint = Vector2.new(0.5, 0.5)
-    avatarContainer.BackgroundColor3 = Aether.Theme.Input
+    avatarContainer.BackgroundColor3 = Arqel.Theme.Input
     avatarContainer.BorderSizePixel = 0
     avatarContainer.ClipsDescendants = true
     avatarContainer.Parent = avatarWrapper
@@ -1191,7 +1194,7 @@ local function CreateUserInfoPanel(parent, windowWidth, panelHeight, panelWidth,
     welcomeLabel.Size = UDim2.new(1, 0, 0, isCompact and 14 or 18)
     welcomeLabel.BackgroundTransparency = 1
     welcomeLabel.Text = "Welcome, " .. (player and player.DisplayName or "User")
-    welcomeLabel.TextColor3 = Aether.Theme.Text
+    welcomeLabel.TextColor3 = Arqel.Theme.Text
     welcomeLabel.TextSize = welcomeSize
     welcomeLabel.Font = Enum.Font.ArimoBold
     welcomeLabel.TextTruncate = Enum.TextTruncate.AtEnd
@@ -1202,7 +1205,7 @@ local function CreateUserInfoPanel(parent, windowWidth, panelHeight, panelWidth,
     divider1.Size = UDim2.new(1, 16, 0, 2)
     divider1.Position = UDim2.new(0.5, 0, 0, 0)
     divider1.AnchorPoint = Vector2.new(0.5, 0)
-    divider1.BackgroundColor3 = Aether.Theme.Divider
+    divider1.BackgroundColor3 = Arqel.Theme.Divider
     divider1.BorderSizePixel = 0
     divider1.LayoutOrder = 3
     divider1.Parent = contentFrame
@@ -1217,7 +1220,7 @@ local function CreateUserInfoPanel(parent, windowWidth, panelHeight, panelWidth,
     executorTitle.Size = UDim2.new(1, 0, 0, 11)
     executorTitle.BackgroundTransparency = 1
     executorTitle.Text = "Executor"
-    executorTitle.TextColor3 = Aether.Theme.TextDim
+    executorTitle.TextColor3 = Arqel.Theme.TextDim
     executorTitle.TextSize = titleSize
     executorTitle.Font = Enum.Font.ArimoBold
     executorTitle.TextXAlignment = Enum.TextXAlignment.Left
@@ -1228,7 +1231,7 @@ local function CreateUserInfoPanel(parent, windowWidth, panelHeight, panelWidth,
     executorValue.Position = UDim2.new(0, 0, 0, 11)
     executorValue.BackgroundTransparency = 1
     executorValue.Text = getExecutorName()
-    executorValue.TextColor3 = Aether.Theme.Accent
+    executorValue.TextColor3 = Arqel.Theme.Accent
     executorValue.TextSize = valueSize
     executorValue.Font = Enum.Font.ArimoBold
     executorValue.TextXAlignment = Enum.TextXAlignment.Left
@@ -1245,7 +1248,7 @@ local function CreateUserInfoPanel(parent, windowWidth, panelHeight, panelWidth,
     deviceTitle.Size = UDim2.new(1, 0, 0, 11)
     deviceTitle.BackgroundTransparency = 1
     deviceTitle.Text = "Device"
-    deviceTitle.TextColor3 = Aether.Theme.TextDim
+    deviceTitle.TextColor3 = Arqel.Theme.TextDim
     deviceTitle.TextSize = titleSize
     deviceTitle.Font = Enum.Font.ArimoBold
     deviceTitle.TextXAlignment = Enum.TextXAlignment.Left
@@ -1256,7 +1259,7 @@ local function CreateUserInfoPanel(parent, windowWidth, panelHeight, panelWidth,
     deviceValue.Position = UDim2.new(0, 0, 0, 11)
     deviceValue.BackgroundTransparency = 1
     deviceValue.Text = getDeviceType()
-    deviceValue.TextColor3 = Aether.Theme.Accent
+    deviceValue.TextColor3 = Arqel.Theme.Accent
     deviceValue.TextSize = valueSize
     deviceValue.Font = Enum.Font.ArimoBold
     deviceValue.TextXAlignment = Enum.TextXAlignment.Left
@@ -1267,7 +1270,7 @@ local function CreateUserInfoPanel(parent, windowWidth, panelHeight, panelWidth,
     divider2.Size = UDim2.new(1, 16, 0, 2)
     divider2.Position = UDim2.new(0.5, 0, 0, 0)
     divider2.AnchorPoint = Vector2.new(0.5, 0)
-    divider2.BackgroundColor3 = Aether.Theme.Divider
+    divider2.BackgroundColor3 = Arqel.Theme.Divider
     divider2.BorderSizePixel = 0
     divider2.LayoutOrder = 6
     divider2.Parent = contentFrame
@@ -1282,7 +1285,7 @@ local function CreateUserInfoPanel(parent, windowWidth, panelHeight, panelWidth,
     hwidTitle.Size = UDim2.new(1, 0, 0, 11)
     hwidTitle.BackgroundTransparency = 1
     hwidTitle.Text = "HWID"
-    hwidTitle.TextColor3 = Aether.Theme.TextDim
+    hwidTitle.TextColor3 = Arqel.Theme.TextDim
     hwidTitle.TextSize = titleSize
     hwidTitle.Font = Enum.Font.ArimoBold
     hwidTitle.TextXAlignment = Enum.TextXAlignment.Left
@@ -1298,7 +1301,7 @@ local function CreateUserInfoPanel(parent, windowWidth, panelHeight, panelWidth,
     hwidValue.Position = UDim2.new(0, 0, 0, 11)
     hwidValue.BackgroundTransparency = 1
     hwidValue.Text = hiddenDots
-    hwidValue.TextColor3 = Aether.Theme.TextDim
+    hwidValue.TextColor3 = Arqel.Theme.TextDim
     hwidValue.TextSize = isCompact and 9 or 10
     hwidValue.Font = Enum.Font.ArimoBold
     hwidValue.TextXAlignment = Enum.TextXAlignment.Left
@@ -1311,23 +1314,23 @@ local function CreateUserInfoPanel(parent, windowWidth, panelHeight, panelWidth,
     copyBtn.AnchorPoint = Vector2.new(1, 0.5)
     copyBtn.BackgroundTransparency = 1
     copyBtn.Image = getIcon("copy")
-    copyBtn.ImageColor3 = Aether.Theme.TextDim
+    copyBtn.ImageColor3 = Arqel.Theme.TextDim
     copyBtn.ScaleType = Enum.ScaleType.Fit
     copyBtn.Parent = hwidContainer
-    copyBtn.MouseEnter:Connect(function() TweenService:Create(copyBtn, TweenInfo.new(0.15), {ImageColor3 = Aether.Theme.Accent}):Play() end)
-    copyBtn.MouseLeave:Connect(function() TweenService:Create(copyBtn, TweenInfo.new(0.15), {ImageColor3 = Aether.Theme.TextDim}):Play() end)
+    copyBtn.MouseEnter:Connect(function() TweenService:Create(copyBtn, TweenInfo.new(0.15), {ImageColor3 = Arqel.Theme.Accent}):Play() end)
+    copyBtn.MouseLeave:Connect(function() TweenService:Create(copyBtn, TweenInfo.new(0.15), {ImageColor3 = Arqel.Theme.TextDim}):Play() end)
     copyBtn.MouseButton1Click:Connect(function()
         pcall(function() setclipboard(fullHWID) end)
-        TweenService:Create(copyBtn, TweenInfo.new(0.1), {ImageColor3 = Aether.Theme.Success}):Play()
-        task.delay(0.3, function() TweenService:Create(copyBtn, TweenInfo.new(0.15), {ImageColor3 = Aether.Theme.TextDim}):Play() end)
-        Aether:Notify("Copied", "HWID copied to clipboard", 2, "copy")
+        TweenService:Create(copyBtn, TweenInfo.new(0.1), {ImageColor3 = Arqel.Theme.Success}):Play()
+        task.delay(0.3, function() TweenService:Create(copyBtn, TweenInfo.new(0.15), {ImageColor3 = Arqel.Theme.TextDim}):Play() end)
+        Arqel:Notify("Copied", "HWID copied to clipboard", 2, "copy")
     end)
 
     local divider3 = Instance.new("Frame")
     divider3.Size = UDim2.new(1, 16, 0, 2)
     divider3.Position = UDim2.new(0.5, 0, 0, 0)
     divider3.AnchorPoint = Vector2.new(0.5, 0)
-    divider3.BackgroundColor3 = Aether.Theme.Divider
+    divider3.BackgroundColor3 = Arqel.Theme.Divider
     divider3.BorderSizePixel = 0
     divider3.LayoutOrder = 8
     divider3.Parent = contentFrame
@@ -1355,7 +1358,7 @@ local function CreateUserInfoPanel(parent, windowWidth, panelHeight, panelWidth,
     clockIcon.Size = UDim2.new(0, isCompact and 14 or 16, 0, isCompact and 14 or 16)
     clockIcon.BackgroundTransparency = 1
     clockIcon.Image = getIcon("clock")
-    clockIcon.ImageColor3 = Aether.Theme.Accent
+    clockIcon.ImageColor3 = Arqel.Theme.Accent
     clockIcon.ScaleType = Enum.ScaleType.Fit
     clockIcon.LayoutOrder = 1
     clockIcon.Parent = clockRow
@@ -1365,7 +1368,7 @@ local function CreateUserInfoPanel(parent, windowWidth, panelHeight, panelWidth,
     clockTimeLabel.AutomaticSize = Enum.AutomaticSize.X
     clockTimeLabel.BackgroundTransparency = 1
     clockTimeLabel.Text = formatTime12()
-    clockTimeLabel.TextColor3 = Aether.Theme.Accent
+    clockTimeLabel.TextColor3 = Arqel.Theme.Accent
     clockTimeLabel.TextSize = isCompact and 14 or 16
     clockTimeLabel.Font = Enum.Font.ArimoBold
     clockTimeLabel.LayoutOrder = 2
@@ -1376,7 +1379,7 @@ local function CreateUserInfoPanel(parent, windowWidth, panelHeight, panelWidth,
     clockDateLabel.Position = UDim2.new(0, -8, 0, isCompact and 18 or 22)
     clockDateLabel.BackgroundTransparency = 1
     clockDateLabel.Text = formatDate()
-    clockDateLabel.TextColor3 = Aether.Theme.TextDim
+    clockDateLabel.TextColor3 = Arqel.Theme.TextDim
     clockDateLabel.TextSize = isCompact and 9 or 11
     clockDateLabel.Font = Enum.Font.ArimoBold
     clockDateLabel.TextXAlignment = Enum.TextXAlignment.Center
@@ -1412,10 +1415,10 @@ end
 
 local function handleKeylessSkip()
     getgenv().SCRIPT_KEY = "KEYLESS"
-    getgenv().AetherLoaded = false
-    Aether:Notify("Access Granted", "Keyless access approved!", 3, "success")
+    getgenv().ArqelLoaded = false
+    Arqel:Notify("Access Granted", "Keyless access approved!", 3, "success")
     task.wait(0.3)
-    if Aether.Callbacks.OnSuccess then Aether.Callbacks.OnSuccess() end
+    if Arqel.Callbacks.OnSuccess then Arqel.Callbacks.OnSuccess() end
 end
 
 local function BuildCenteredUI(windowWidth, windowHeight, panelHeight, userPanelWidth, changelogPanelWidth, gap, buildContent)
@@ -1434,13 +1437,13 @@ local function BuildCenteredUI(windowWidth, windowHeight, panelHeight, userPanel
     mainFrame.Size = UDim2.new(0, windowWidth, 0, windowHeight)
     mainFrame.Position = UDim2.new(0.5, 0, 0, 0)
     mainFrame.AnchorPoint = Vector2.new(0.5, 0)
-    mainFrame.BackgroundColor3 = Aether.Theme.Background
+    mainFrame.BackgroundColor3 = Arqel.Theme.Background
     mainFrame.BorderSizePixel = 0
     mainFrame.Parent = container
     Instance.new("UICorner", mainFrame).CornerRadius = UDim.new(0, 4)
 
     local mainStroke = Instance.new("UIStroke", mainFrame)
-    mainStroke.Color = Aether.Theme.Accent
+    mainStroke.Color = Arqel.Theme.Accent
     mainStroke.Thickness = 2
     mainStroke.Transparency = 0.4
 
@@ -1491,9 +1494,9 @@ local function BuildCenteredUI(windowWidth, windowHeight, panelHeight, userPanel
 end
 
 local function BuildKeylessUI()
-    local oldGui = hui:FindFirstChild("AetherKeylessSystem")
+    local oldGui = hui:FindFirstChild("ArqelKeylessSystem")
     if oldGui then oldGui:Destroy() end
-    local oldGui2 = hui:FindFirstChild("AetherKeySystem")
+    local oldGui2 = hui:FindFirstChild("ArqelKeySystem")
     if oldGui2 then oldGui2:Destroy() end
 
     enableBlur()
@@ -1507,7 +1510,7 @@ local function BuildKeylessUI()
     local gap = 12
 
     local gui = Instance.new("ScreenGui")
-    gui.Name = "AetherKeylessSystem"
+    gui.Name = "ArqelKeylessSystem"
     gui.ResetOnSpawn = false
     gui.IgnoreGuiInset = true
     gui.Parent = hui
@@ -1519,7 +1522,7 @@ local function BuildKeylessUI()
 
     local header = Instance.new("Frame")
     header.Size = UDim2.new(1, 0, 0, 50)
-    header.BackgroundColor3 = Aether.Theme.Header
+    header.BackgroundColor3 = Arqel.Theme.Header
     header.BorderSizePixel = 0
     header.Active = true
     header.Parent = main
@@ -1528,14 +1531,14 @@ local function BuildKeylessUI()
     local headerFix = Instance.new("Frame")
     headerFix.Size = UDim2.new(1, 0, 0, 8)
     headerFix.Position = UDim2.new(0, 0, 1, -8)
-    headerFix.BackgroundColor3 = Aether.Theme.Header
+    headerFix.BackgroundColor3 = Arqel.Theme.Header
     headerFix.BorderSizePixel = 0
     headerFix.Parent = header
 
     local headerLine = Instance.new("Frame")
     headerLine.Size = UDim2.new(1, 0, 0, 1)
     headerLine.Position = UDim2.new(0, 0, 1, 0)
-    headerLine.BackgroundColor3 = Aether.Theme.Accent
+    headerLine.BackgroundColor3 = Arqel.Theme.Accent
     headerLine.BackgroundTransparency = 0.6
     headerLine.BorderSizePixel = 0
     headerLine.Parent = header
@@ -1546,7 +1549,7 @@ local function BuildKeylessUI()
     logo.AnchorPoint = Vector2.new(0, 0.5)
     logo.BackgroundTransparency = 1
     logo.Image = getLogoIcon()
-    logo.ImageColor3 = Aether.Theme.Text
+    logo.ImageColor3 = Arqel.Theme.Text
     logo.ScaleType = Enum.ScaleType.Fit
     logo.Parent = header
 
@@ -1554,8 +1557,8 @@ local function BuildKeylessUI()
     title.Size = UDim2.new(1, -90, 1, 0)
     title.Position = UDim2.new(0, padding + 40, 0, 0)
     title.BackgroundTransparency = 1
-    title.Text = Aether.Appearance.Title
-    title.TextColor3 = Aether.Theme.Text
+    title.Text = Arqel.Appearance.Title
+    title.TextColor3 = Arqel.Theme.Text
     title.TextSize = mobile and 24 or 26
     title.Font = Enum.Font.ArimoBold
     title.TextXAlignment = Enum.TextXAlignment.Left
@@ -1567,11 +1570,11 @@ local function BuildKeylessUI()
     closeBtn.AnchorPoint = Vector2.new(1, 0.5)
     closeBtn.BackgroundTransparency = 1
     closeBtn.Image = getIcon("close")
-    closeBtn.ImageColor3 = Aether.Theme.TextDim
+    closeBtn.ImageColor3 = Arqel.Theme.TextDim
     closeBtn.ScaleType = Enum.ScaleType.Fit
     closeBtn.Parent = header
-    closeBtn.MouseEnter:Connect(function() TweenService:Create(closeBtn, TweenInfo.new(0.15), {ImageColor3 = Aether.Theme.Error}):Play() end)
-    closeBtn.MouseLeave:Connect(function() TweenService:Create(closeBtn, TweenInfo.new(0.15), {ImageColor3 = Aether.Theme.TextDim}):Play() end)
+    closeBtn.MouseEnter:Connect(function() TweenService:Create(closeBtn, TweenInfo.new(0.15), {ImageColor3 = Arqel.Theme.Error}):Play() end)
+    closeBtn.MouseLeave:Connect(function() TweenService:Create(closeBtn, TweenInfo.new(0.15), {ImageColor3 = Arqel.Theme.TextDim}):Play() end)
 
     local contentY = 60
 
@@ -1579,14 +1582,14 @@ local function BuildKeylessUI()
     successBox.Size = UDim2.new(0.94, 0, 0, 52)
     successBox.Position = UDim2.new(0.5, 0, 0, contentY)
     successBox.AnchorPoint = Vector2.new(0.5, 0)
-    successBox.BackgroundColor3 = Aether.Theme.Success
+    successBox.BackgroundColor3 = Arqel.Theme.Success
     successBox.BackgroundTransparency = 0.85
     successBox.BorderSizePixel = 0
     successBox.Parent = main
     Instance.new("UICorner", successBox).CornerRadius = UDim.new(0, 4)
 
     local successStroke = Instance.new("UIStroke", successBox)
-    successStroke.Color = Aether.Theme.Success
+    successStroke.Color = Arqel.Theme.Success
     successStroke.Thickness = 1
     successStroke.Transparency = 0.5
 
@@ -1596,7 +1599,7 @@ local function BuildKeylessUI()
     checkIcon.AnchorPoint = Vector2.new(0, 0.5)
     checkIcon.BackgroundTransparency = 1
     checkIcon.Image = getIcon("check")
-    checkIcon.ImageColor3 = Aether.Theme.Success
+    checkIcon.ImageColor3 = Arqel.Theme.Success
     checkIcon.ScaleType = Enum.ScaleType.Fit
     checkIcon.Parent = successBox
 
@@ -1605,7 +1608,7 @@ local function BuildKeylessUI()
     successText.Position = UDim2.new(0, 52, 0, 0)
     successText.BackgroundTransparency = 1
     successText.Text = "Access Granted"
-    successText.TextColor3 = Aether.Theme.Success
+    successText.TextColor3 = Arqel.Theme.Success
     successText.TextSize = mobile and 17 or 18
     successText.Font = Enum.Font.ArimoBold
     successText.TextXAlignment = Enum.TextXAlignment.Left
@@ -1617,7 +1620,7 @@ local function BuildKeylessUI()
     keylessText.AnchorPoint = Vector2.new(0.5, 0)
     keylessText.BackgroundTransparency = 1
     keylessText.Text = "Keyless Script"
-    keylessText.TextColor3 = Aether.Theme.TextDim
+    keylessText.TextColor3 = Arqel.Theme.TextDim
     keylessText.TextSize = mobile and 14 or 15
     keylessText.Font = Enum.Font.ArimoBold
     keylessText.Parent = main
@@ -1625,7 +1628,7 @@ local function BuildKeylessUI()
     local divider = Instance.new("Frame")
     divider.Size = UDim2.new(1, 0, 0, 3)
     divider.Position = UDim2.new(0, 0, 0, contentY + 88)
-    divider.BackgroundColor3 = Aether.Theme.Divider
+    divider.BackgroundColor3 = Arqel.Theme.Divider
     divider.BorderSizePixel = 0
     divider.Parent = main
 
@@ -1633,7 +1636,7 @@ local function BuildKeylessUI()
     launchBtn.Size = UDim2.new(0.75, 0, 0, 42)
     launchBtn.Position = UDim2.new(0.5, 0, 0, contentY + 103)
     launchBtn.AnchorPoint = Vector2.new(0.5, 0)
-    launchBtn.BackgroundColor3 = Aether.Theme.Accent
+    launchBtn.BackgroundColor3 = Arqel.Theme.Accent
     launchBtn.BorderSizePixel = 0
     launchBtn.Text = ""
     launchBtn.AutoButtonColor = false
@@ -1641,7 +1644,7 @@ local function BuildKeylessUI()
     Instance.new("UICorner", launchBtn).CornerRadius = UDim.new(0, 4)
 
     local launchStroke = Instance.new("UIStroke", launchBtn)
-    launchStroke.Color = Aether.Theme.AccentHover
+    launchStroke.Color = Arqel.Theme.AccentHover
     launchStroke.Thickness = 1
     launchStroke.Transparency = 0.5
 
@@ -1660,7 +1663,7 @@ local function BuildKeylessUI()
     launchIcon.Size = UDim2.new(0, 18, 0, 18)
     launchIcon.BackgroundTransparency = 1
     launchIcon.Image = getIcon("shield")
-    launchIcon.ImageColor3 = Aether.Theme.Text
+    launchIcon.ImageColor3 = Arqel.Theme.Text
     launchIcon.ScaleType = Enum.ScaleType.Fit
     launchIcon.LayoutOrder = 1
     launchIcon.Parent = launchContent
@@ -1670,14 +1673,14 @@ local function BuildKeylessUI()
     launchLabel.AutomaticSize = Enum.AutomaticSize.X
     launchLabel.BackgroundTransparency = 1
     launchLabel.Text = "Launch Script"
-    launchLabel.TextColor3 = Aether.Theme.Text
+    launchLabel.TextColor3 = Arqel.Theme.Text
     launchLabel.TextSize = mobile and 14 or 15
     launchLabel.Font = Enum.Font.ArimoBold
     launchLabel.LayoutOrder = 2
     launchLabel.Parent = launchContent
 
-    launchBtn.MouseEnter:Connect(function() TweenService:Create(launchBtn, TweenInfo.new(0.15), {BackgroundColor3 = Aether.Theme.AccentHover}):Play() end)
-    launchBtn.MouseLeave:Connect(function() TweenService:Create(launchBtn, TweenInfo.new(0.15), {BackgroundColor3 = Aether.Theme.Accent}):Play() end)
+    launchBtn.MouseEnter:Connect(function() TweenService:Create(launchBtn, TweenInfo.new(0.15), {BackgroundColor3 = Arqel.Theme.AccentHover}):Play() end)
+    launchBtn.MouseLeave:Connect(function() TweenService:Create(launchBtn, TweenInfo.new(0.15), {BackgroundColor3 = Arqel.Theme.Accent}):Play() end)
 
     local bottomY = contentY + 153
 
@@ -1685,7 +1688,7 @@ local function BuildKeylessUI()
     userBtn.Size = UDim2.new(0, 36, 0, 36)
     userBtn.Position = UDim2.new(0.5, -44, 0, bottomY)
     userBtn.AnchorPoint = Vector2.new(0.5, 0)
-    userBtn.BackgroundColor3 = Aether.Theme.Background
+    userBtn.BackgroundColor3 = Arqel.Theme.Background
     userBtn.BorderSizePixel = 0
     userBtn.Text = ""
     userBtn.AutoButtonColor = false
@@ -1698,17 +1701,17 @@ local function BuildKeylessUI()
     userIcon.AnchorPoint = Vector2.new(0.5, 0.5)
     userIcon.BackgroundTransparency = 1
     userIcon.Image = getIcon("user")
-    userIcon.ImageColor3 = Aether.Theme.TextDim
+    userIcon.ImageColor3 = Arqel.Theme.TextDim
     userIcon.ScaleType = Enum.ScaleType.Fit
     userIcon.Parent = userBtn
-    userBtn.MouseEnter:Connect(function() TweenService:Create(userIcon, TweenInfo.new(0.15), {ImageColor3 = Aether.Theme.Accent}):Play() end)
-    userBtn.MouseLeave:Connect(function() TweenService:Create(userIcon, TweenInfo.new(0.15), {ImageColor3 = Aether.Theme.TextDim}):Play() end)
+    userBtn.MouseEnter:Connect(function() TweenService:Create(userIcon, TweenInfo.new(0.15), {ImageColor3 = Arqel.Theme.Accent}):Play() end)
+    userBtn.MouseLeave:Connect(function() TweenService:Create(userIcon, TweenInfo.new(0.15), {ImageColor3 = Arqel.Theme.TextDim}):Play() end)
 
     local discordBtn = Instance.new("TextButton")
     discordBtn.Size = UDim2.new(0, 36, 0, 36)
     discordBtn.Position = UDim2.new(0.5, 0, 0, bottomY)
     discordBtn.AnchorPoint = Vector2.new(0.5, 0)
-    discordBtn.BackgroundColor3 = Aether.Theme.Background
+    discordBtn.BackgroundColor3 = Arqel.Theme.Background
     discordBtn.BorderSizePixel = 0
     discordBtn.Text = ""
     discordBtn.AutoButtonColor = false
@@ -1721,17 +1724,17 @@ local function BuildKeylessUI()
     discordIcon.AnchorPoint = Vector2.new(0.5, 0.5)
     discordIcon.BackgroundTransparency = 1
     discordIcon.Image = getIcon("discord")
-    discordIcon.ImageColor3 = Aether.Theme.Discord
+    discordIcon.ImageColor3 = Arqel.Theme.Discord
     discordIcon.ScaleType = Enum.ScaleType.Fit
     discordIcon.Parent = discordBtn
-    discordBtn.MouseEnter:Connect(function() TweenService:Create(discordIcon, TweenInfo.new(0.15), {ImageColor3 = Aether.Theme.DiscordHover}):Play() end)
-    discordBtn.MouseLeave:Connect(function() TweenService:Create(discordIcon, TweenInfo.new(0.15), {ImageColor3 = Aether.Theme.Discord}):Play() end)
+    discordBtn.MouseEnter:Connect(function() TweenService:Create(discordIcon, TweenInfo.new(0.15), {ImageColor3 = Arqel.Theme.DiscordHover}):Play() end)
+    discordBtn.MouseLeave:Connect(function() TweenService:Create(discordIcon, TweenInfo.new(0.15), {ImageColor3 = Arqel.Theme.Discord}):Play() end)
 
     local changelogBtn = Instance.new("TextButton")
     changelogBtn.Size = UDim2.new(0, 36, 0, 36)
     changelogBtn.Position = UDim2.new(0.5, 44, 0, bottomY)
     changelogBtn.AnchorPoint = Vector2.new(0.5, 0)
-    changelogBtn.BackgroundColor3 = Aether.Theme.Background
+    changelogBtn.BackgroundColor3 = Arqel.Theme.Background
     changelogBtn.BorderSizePixel = 0
     changelogBtn.Text = ""
     changelogBtn.AutoButtonColor = false
@@ -1744,13 +1747,13 @@ local function BuildKeylessUI()
     changelogIcon.AnchorPoint = Vector2.new(0.5, 0.5)
     changelogIcon.BackgroundTransparency = 1
     changelogIcon.Image = getIcon("changelog")
-    changelogIcon.ImageColor3 = Aether.Theme.TextDim
+    changelogIcon.ImageColor3 = Arqel.Theme.TextDim
     changelogIcon.ScaleType = Enum.ScaleType.Fit
     changelogIcon.Parent = changelogBtn
-    changelogBtn.MouseEnter:Connect(function() TweenService:Create(changelogIcon, TweenInfo.new(0.15), {ImageColor3 = Aether.Theme.Text}):Play() end)
-    changelogBtn.MouseLeave:Connect(function() TweenService:Create(changelogIcon, TweenInfo.new(0.15), {ImageColor3 = Aether.Theme.TextDim}):Play() end)
+    changelogBtn.MouseEnter:Connect(function() TweenService:Create(changelogIcon, TweenInfo.new(0.15), {ImageColor3 = Arqel.Theme.Text}):Play() end)
+    changelogBtn.MouseLeave:Connect(function() TweenService:Create(changelogIcon, TweenInfo.new(0.15), {ImageColor3 = Arqel.Theme.TextDim}):Play() end)
 
-    if #Aether.Changelog == 0 then
+    if #Arqel.Changelog == 0 then
         changelogBtn.Visible = false
         userBtn.Position = UDim2.new(0.5, -22, 0, bottomY)
         discordBtn.Position = UDim2.new(0.5, 22, 0, bottomY)
@@ -1768,7 +1771,7 @@ local function BuildKeylessUI()
     end
 
     closeBtn.MouseButton1Click:Connect(function()
-        Aether:Notify("Goodbye", "See you next time!", 2, "close")
+        Arqel:Notify("Goodbye", "See you next time!", 2, "close")
         closeDoorsThenExit(function()
             fullCleanup()
             TweenService:Create(container, TweenInfo.new(0.4, Enum.EasingStyle.Quart), {Position = UDim2.new(0.5, 0, -0.5, 0)}):Play()
@@ -1776,27 +1779,27 @@ local function BuildKeylessUI()
             TweenService:Create(mainStroke, TweenInfo.new(0.3), {Transparency = 1}):Play()
             task.wait(0.4) gui:Destroy()
         end)
-        if Aether.Callbacks.OnClose then Aether.Callbacks.OnClose() end
+        if Arqel.Callbacks.OnClose then Arqel.Callbacks.OnClose() end
     end)
 
     launchBtn.MouseButton1Click:Connect(function()
-        Aether:Notify("Launching", "Script loaded successfully!", 2, "success")
+        Arqel:Notify("Launching", "Script loaded successfully!", 2, "success")
         getgenv().SCRIPT_KEY = "KEYLESS"
-        getgenv().AetherLoaded = false
+        getgenv().ArqelLoaded = false
         closeDoorsThenExit(function()
             disableBlur()
             TweenService:Create(container, TweenInfo.new(0.4, Enum.EasingStyle.Quart), {Position = UDim2.new(0.5, 0, -0.5, 0)}):Play()
             TweenService:Create(main, TweenInfo.new(0.3), {BackgroundTransparency = 1}):Play()
             TweenService:Create(mainStroke, TweenInfo.new(0.3), {Transparency = 1}):Play()
             task.wait(0.4) gui:Destroy()
-            if not Internal.IsJunkieMode and Aether.Callbacks.OnSuccess then Aether.Callbacks.OnSuccess() end
+            if not Internal.IsJunkieMode and Arqel.Callbacks.OnSuccess then Arqel.Callbacks.OnSuccess() end
         end)
     end)
 
     discordBtn.MouseButton1Click:Connect(function()
-        if Aether.Links.Discord ~= "" then
-            Aether:Notify("Discord", "Invite link copied!", 2, "discord")
-            pcall(function() setclipboard(Aether.Links.Discord) end)
+        if Arqel.Links.Discord ~= "" then
+            Arqel:Notify("Discord", "Invite link copied!", 2, "discord")
+            pcall(function() setclipboard(Arqel.Links.Discord) end)
         end
     end)
 
@@ -1808,14 +1811,14 @@ local function BuildKeylessUI()
         TweenService:Create(checkIcon, TweenInfo.new(0.4, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {Size = UDim2.new(0, 24, 0, 24)}):Play()
         task.wait(0.2)
         ui.toggleUser(userIcon)
-        if #Aether.Changelog > 0 then task.wait(0.3) ui.toggleCL(changelogIcon) end
+        if #Arqel.Changelog > 0 then task.wait(0.3) ui.toggleCL(changelogIcon) end
     end)
 end
 
 local function BuildKeyUI()
-    local oldGui = hui:FindFirstChild("AetherKeySystem")
+    local oldGui = hui:FindFirstChild("ArqelKeySystem")
     if oldGui then oldGui:Destroy() end
-    local oldGui2 = hui:FindFirstChild("AetherKeylessSystem")
+    local oldGui2 = hui:FindFirstChild("ArqelKeylessSystem")
     if oldGui2 then oldGui2:Destroy() end
 
     enableBlur()
@@ -1838,7 +1841,7 @@ local function BuildKeyUI()
     local gap = 12
 
     local screenGui = Instance.new("ScreenGui")
-    screenGui.Name = "AetherKeySystem"
+    screenGui.Name = "ArqelKeySystem"
     screenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
     screenGui.ResetOnSpawn = false
     screenGui.IgnoreGuiInset = true
@@ -1851,7 +1854,7 @@ local function BuildKeyUI()
 
     local header = Instance.new("Frame")
     header.Size = UDim2.new(1, 0, 0, 50)
-    header.BackgroundColor3 = Aether.Theme.Header
+    header.BackgroundColor3 = Arqel.Theme.Header
     header.BorderSizePixel = 0
     header.Active = true
     header.Parent = mainFrame
@@ -1860,34 +1863,34 @@ local function BuildKeyUI()
     local headerFix = Instance.new("Frame")
     headerFix.Size = UDim2.new(1, 0, 0, 6)
     headerFix.Position = UDim2.new(0, 0, 1, -6)
-    headerFix.BackgroundColor3 = Aether.Theme.Header
+    headerFix.BackgroundColor3 = Arqel.Theme.Header
     headerFix.BorderSizePixel = 0
     headerFix.Parent = header
 
     local headerLine = Instance.new("Frame")
     headerLine.Size = UDim2.new(1, 0, 0, 1)
     headerLine.Position = UDim2.new(0, 0, 1, 0)
-    headerLine.BackgroundColor3 = Aether.Theme.Accent
+    headerLine.BackgroundColor3 = Arqel.Theme.Accent
     headerLine.BackgroundTransparency = 0.6
     headerLine.BorderSizePixel = 0
     headerLine.Parent = header
 
     local logo = Instance.new("ImageLabel")
-    logo.Size = Aether.Appearance.IconSize
+    logo.Size = Arqel.Appearance.IconSize
     logo.Position = UDim2.new(0, padding, 0.5, 0)
     logo.AnchorPoint = Vector2.new(0, 0.5)
     logo.BackgroundTransparency = 1
     logo.Image = getLogoIcon()
-    logo.ImageColor3 = Aether.Theme.Text
+    logo.ImageColor3 = Arqel.Theme.Text
     logo.ScaleType = Enum.ScaleType.Fit
     logo.Parent = header
 
     local titleLabel = Instance.new("TextLabel")
     titleLabel.Size = UDim2.new(1, -90, 1, 0)
-    titleLabel.Position = UDim2.new(0, padding + Aether.Appearance.IconSize.X.Offset + 10, 0, 0)
+    titleLabel.Position = UDim2.new(0, padding + Arqel.Appearance.IconSize.X.Offset + 10, 0, 0)
     titleLabel.BackgroundTransparency = 1
-    titleLabel.Text = Aether.Appearance.Title
-    titleLabel.TextColor3 = Aether.Theme.Text
+    titleLabel.Text = Arqel.Appearance.Title
+    titleLabel.TextColor3 = Arqel.Theme.Text
     titleLabel.TextSize = mobile and 24 or 26
     titleLabel.Font = Enum.Font.ArimoBold
     titleLabel.TextXAlignment = Enum.TextXAlignment.Left
@@ -1899,11 +1902,11 @@ local function BuildKeyUI()
     closeBtn.AnchorPoint = Vector2.new(1, 0.5)
     closeBtn.BackgroundTransparency = 1
     closeBtn.Image = getIcon("close")
-    closeBtn.ImageColor3 = Aether.Theme.TextDim
+    closeBtn.ImageColor3 = Arqel.Theme.TextDim
     closeBtn.ScaleType = Enum.ScaleType.Fit
     closeBtn.Parent = header
-    closeBtn.MouseEnter:Connect(function() TweenService:Create(closeBtn, TweenInfo.new(0.15), {ImageColor3 = Aether.Theme.Error}):Play() end)
-    closeBtn.MouseLeave:Connect(function() TweenService:Create(closeBtn, TweenInfo.new(0.15), {ImageColor3 = Aether.Theme.TextDim}):Play() end)
+    closeBtn.MouseEnter:Connect(function() TweenService:Create(closeBtn, TweenInfo.new(0.15), {ImageColor3 = Arqel.Theme.Error}):Play() end)
+    closeBtn.MouseLeave:Connect(function() TweenService:Create(closeBtn, TweenInfo.new(0.15), {ImageColor3 = Arqel.Theme.TextDim}):Play() end)
 
     local contentStartY = 60
 
@@ -1911,14 +1914,14 @@ local function BuildKeyUI()
     statusFrame.Size = UDim2.new(0.94, 0, 0, statusHeight)
     statusFrame.Position = UDim2.new(0.5, 0, 0, contentStartY)
     statusFrame.AnchorPoint = Vector2.new(0.5, 0)
-    statusFrame.BackgroundColor3 = Aether.Theme.Input
+    statusFrame.BackgroundColor3 = Arqel.Theme.Input
     statusFrame.BorderSizePixel = 0
     statusFrame.ClipsDescendants = true
     statusFrame.Parent = mainFrame
     Instance.new("UICorner", statusFrame).CornerRadius = UDim.new(0, 4)
 
     local statusStroke = Instance.new("UIStroke", statusFrame)
-    statusStroke.Color = Aether.Theme.Accent
+    statusStroke.Color = Arqel.Theme.Accent
     statusStroke.Thickness = 1
     statusStroke.Transparency = 0.8
 
@@ -1928,7 +1931,7 @@ local function BuildKeyUI()
     statusIcon.AnchorPoint = Vector2.new(0, 0.5)
     statusIcon.BackgroundTransparency = 1
     statusIcon.Image = getIcon("lock")
-    statusIcon.ImageColor3 = Aether.Theme.StatusIdle
+    statusIcon.ImageColor3 = Arqel.Theme.StatusIdle
     statusIcon.ScaleType = Enum.ScaleType.Fit
     statusIcon.Parent = statusFrame
 
@@ -1936,8 +1939,8 @@ local function BuildKeyUI()
     statusLabel.Size = UDim2.new(1, -60, 1, 0)
     statusLabel.Position = UDim2.new(0, 52, 0, 0)
     statusLabel.BackgroundTransparency = 1
-    statusLabel.Text = Aether.Appearance.Subtitle
-    statusLabel.TextColor3 = Aether.Theme.StatusIdle
+    statusLabel.Text = Arqel.Appearance.Subtitle
+    statusLabel.TextColor3 = Arqel.Theme.StatusIdle
     statusLabel.TextSize = mobile and 17 or 18
     statusLabel.Font = Enum.Font.ArimoBold
     statusLabel.TextXAlignment = Enum.TextXAlignment.Left
@@ -1950,14 +1953,14 @@ local function BuildKeyUI()
     inputFrame.Size = UDim2.new(0.94, 0, 0, elementHeight)
     inputFrame.Position = UDim2.new(0.5, 0, 0, inputStartY)
     inputFrame.AnchorPoint = Vector2.new(0.5, 0)
-    inputFrame.BackgroundColor3 = Aether.Theme.Input
+    inputFrame.BackgroundColor3 = Arqel.Theme.Input
     inputFrame.BorderSizePixel = 0
     inputFrame.ClipsDescendants = true
     inputFrame.Parent = mainFrame
     Instance.new("UICorner", inputFrame).CornerRadius = UDim.new(0, 4)
 
     local inputStroke = Instance.new("UIStroke", inputFrame)
-    inputStroke.Color = Aether.Theme.Accent
+    inputStroke.Color = Arqel.Theme.Accent
     inputStroke.Thickness = 1
     inputStroke.Transparency = 0.7
 
@@ -1967,9 +1970,9 @@ local function BuildKeyUI()
     textBox.AnchorPoint = Vector2.new(0, 0.5)
     textBox.BackgroundTransparency = 1
     textBox.Text = ""
-    textBox.TextColor3 = Aether.Theme.Text
+    textBox.TextColor3 = Arqel.Theme.Text
     textBox.PlaceholderText = "Enter your key..."
-    textBox.PlaceholderColor3 = Aether.Theme.TextDim
+    textBox.PlaceholderColor3 = Arqel.Theme.TextDim
     textBox.TextSize = mobile and 17 or 18
     textBox.Font = Enum.Font.ArimoBold
     textBox.ClearTextOnFocus = false
@@ -1984,7 +1987,7 @@ local function BuildKeyUI()
     local dividerLine = Instance.new("Frame")
     dividerLine.Size = UDim2.new(1, 0, 0, 3)
     dividerLine.Position = UDim2.new(0, 0, 0, dividerY)
-    dividerLine.BackgroundColor3 = Aether.Theme.Divider
+    dividerLine.BackgroundColor3 = Arqel.Theme.Divider
     dividerLine.BorderSizePixel = 0
     dividerLine.Parent = mainFrame
 
@@ -1995,7 +1998,7 @@ local function BuildKeyUI()
         btn.Size = UDim2.new(0.75, 0, 0, buttonHeight)
         btn.Position = UDim2.new(0.5, 0, 0, yPos)
         btn.AnchorPoint = Vector2.new(0.5, 0)
-        btn.BackgroundColor3 = isPrimary and Aether.Theme.Accent or Aether.Theme.Input
+        btn.BackgroundColor3 = isPrimary and Arqel.Theme.Accent or Arqel.Theme.Input
         btn.BorderSizePixel = 0
         btn.Text = ""
         btn.AutoButtonColor = false
@@ -2003,7 +2006,7 @@ local function BuildKeyUI()
         Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 4)
 
         local btnStroke = Instance.new("UIStroke", btn)
-        btnStroke.Color = isPrimary and Aether.Theme.AccentHover or Aether.Theme.Accent
+        btnStroke.Color = isPrimary and Arqel.Theme.AccentHover or Arqel.Theme.Accent
         btnStroke.Thickness = 1
         btnStroke.Transparency = isPrimary and 0.5 or 0.7
 
@@ -2022,7 +2025,7 @@ local function BuildKeyUI()
         iconImg.Size = UDim2.new(0, 18, 0, 18)
         iconImg.BackgroundTransparency = 1
         iconImg.Image = getIcon(iconKey)
-        iconImg.ImageColor3 = Aether.Theme.Text
+        iconImg.ImageColor3 = Arqel.Theme.Text
         iconImg.ScaleType = Enum.ScaleType.Fit
         iconImg.LayoutOrder = 1
         iconImg.Parent = content
@@ -2032,20 +2035,25 @@ local function BuildKeyUI()
         label.AutomaticSize = Enum.AutomaticSize.X
         label.BackgroundTransparency = 1
         label.Text = text
-        label.TextColor3 = Aether.Theme.Text
+        label.TextColor3 = Arqel.Theme.Text
         label.TextSize = mobile and 14 or 15
         label.Font = Enum.Font.ArimoBold
         label.LayoutOrder = 2
         label.Parent = content
 
         local origColor = btn.BackgroundColor3
-        local hoverColor = isPrimary and Aether.Theme.AccentHover or Aether.Theme.Accent
+        local hoverColor = isPrimary and Arqel.Theme.AccentHover or Arqel.Theme.Accent
         btn.MouseEnter:Connect(function() TweenService:Create(btn, TweenInfo.new(0.15), {BackgroundColor3 = hoverColor}):Play() end)
         btn.MouseLeave:Connect(function() TweenService:Create(btn, TweenInfo.new(0.15), {BackgroundColor3 = origColor}):Play() end)
         return btn
     end
 
-    local acquireBtn = createButton("Get Key", "key", false, acquireStartY)
+    local acquireBtn = createButton(Arqel.Options.NoGetKey and "Unavailable" or "Get Key", Arqel.Options.NoGetKey and "nogetkey" or "key", false, acquireStartY)
+    if Arqel.Options.NoGetKey then
+        acquireBtn.Active = false
+        TweenService:Create(acquireBtn, TweenInfo.new(0), {BackgroundColor3 = Arqel.Theme.Pending}):Play()
+    end
+
     local redeemBtn = createButton("Redeem Key", "shield", true, acquireStartY + buttonHeight + 5)
     local bottomY = acquireStartY + buttonHeight * 2 + 10
 
@@ -2053,7 +2061,7 @@ local function BuildKeyUI()
     userBtn.Size = UDim2.new(0, 36, 0, 36)
     userBtn.Position = UDim2.new(0.5, -44, 0, bottomY)
     userBtn.AnchorPoint = Vector2.new(0.5, 0)
-    userBtn.BackgroundColor3 = Aether.Theme.Background
+    userBtn.BackgroundColor3 = Arqel.Theme.Background
     userBtn.BorderSizePixel = 0
     userBtn.Text = ""
     userBtn.AutoButtonColor = false
@@ -2066,17 +2074,17 @@ local function BuildKeyUI()
     userIcon.AnchorPoint = Vector2.new(0.5, 0.5)
     userIcon.BackgroundTransparency = 1
     userIcon.Image = getIcon("user")
-    userIcon.ImageColor3 = Aether.Theme.TextDim
+    userIcon.ImageColor3 = Arqel.Theme.TextDim
     userIcon.ScaleType = Enum.ScaleType.Fit
     userIcon.Parent = userBtn
-    userBtn.MouseEnter:Connect(function() TweenService:Create(userIcon, TweenInfo.new(0.15), {ImageColor3 = Aether.Theme.Accent}):Play() end)
-    userBtn.MouseLeave:Connect(function() TweenService:Create(userIcon, TweenInfo.new(0.15), {ImageColor3 = Aether.Theme.TextDim}):Play() end)
+    userBtn.MouseEnter:Connect(function() TweenService:Create(userIcon, TweenInfo.new(0.15), {ImageColor3 = Arqel.Theme.Accent}):Play() end)
+    userBtn.MouseLeave:Connect(function() TweenService:Create(userIcon, TweenInfo.new(0.15), {ImageColor3 = Arqel.Theme.TextDim}):Play() end)
 
     local discordBtn = Instance.new("TextButton")
     discordBtn.Size = UDim2.new(0, 36, 0, 36)
     discordBtn.Position = UDim2.new(0.5, 0, 0, bottomY)
     discordBtn.AnchorPoint = Vector2.new(0.5, 0)
-    discordBtn.BackgroundColor3 = Aether.Theme.Background
+    discordBtn.BackgroundColor3 = Arqel.Theme.Background
     discordBtn.BorderSizePixel = 0
     discordBtn.Text = ""
     discordBtn.AutoButtonColor = false
@@ -2089,17 +2097,17 @@ local function BuildKeyUI()
     discordIcon.AnchorPoint = Vector2.new(0.5, 0.5)
     discordIcon.BackgroundTransparency = 1
     discordIcon.Image = getIcon("discord")
-    discordIcon.ImageColor3 = Aether.Theme.Discord
+    discordIcon.ImageColor3 = Arqel.Theme.Discord
     discordIcon.ScaleType = Enum.ScaleType.Fit
     discordIcon.Parent = discordBtn
-    discordBtn.MouseEnter:Connect(function() TweenService:Create(discordIcon, TweenInfo.new(0.15), {ImageColor3 = Aether.Theme.DiscordHover}):Play() end)
-    discordBtn.MouseLeave:Connect(function() TweenService:Create(discordIcon, TweenInfo.new(0.15), {ImageColor3 = Aether.Theme.Discord}):Play() end)
+    discordBtn.MouseEnter:Connect(function() TweenService:Create(discordIcon, TweenInfo.new(0.15), {ImageColor3 = Arqel.Theme.DiscordHover}):Play() end)
+    discordBtn.MouseLeave:Connect(function() TweenService:Create(discordIcon, TweenInfo.new(0.15), {ImageColor3 = Arqel.Theme.Discord}):Play() end)
 
     local changelogBtn = Instance.new("TextButton")
     changelogBtn.Size = UDim2.new(0, 36, 0, 36)
     changelogBtn.Position = UDim2.new(0.5, 44, 0, bottomY)
     changelogBtn.AnchorPoint = Vector2.new(0.5, 0)
-    changelogBtn.BackgroundColor3 = Aether.Theme.Background
+    changelogBtn.BackgroundColor3 = Arqel.Theme.Background
     changelogBtn.BorderSizePixel = 0
     changelogBtn.Text = ""
     changelogBtn.AutoButtonColor = false
@@ -2112,25 +2120,24 @@ local function BuildKeyUI()
     changelogIcon.AnchorPoint = Vector2.new(0.5, 0.5)
     changelogIcon.BackgroundTransparency = 1
     changelogIcon.Image = getIcon("changelog")
-    changelogIcon.ImageColor3 = Aether.Theme.TextDim
+    changelogIcon.ImageColor3 = Arqel.Theme.TextDim
     changelogIcon.ScaleType = Enum.ScaleType.Fit
     changelogIcon.Parent = changelogBtn
-    changelogBtn.MouseEnter:Connect(function() TweenService:Create(changelogIcon, TweenInfo.new(0.15), {ImageColor3 = Aether.Theme.Text}):Play() end)
-    changelogBtn.MouseLeave:Connect(function() TweenService:Create(changelogIcon, TweenInfo.new(0.15), {ImageColor3 = Aether.Theme.TextDim}):Play() end)
+    changelogBtn.MouseEnter:Connect(function() TweenService:Create(changelogIcon, TweenInfo.new(0.15), {ImageColor3 = Arqel.Theme.Text}):Play() end)
+    changelogBtn.MouseLeave:Connect(function() TweenService:Create(changelogIcon, TweenInfo.new(0.15), {ImageColor3 = Arqel.Theme.TextDim}):Play() end)
 
-    if #Aether.Changelog == 0 then
+    if #Arqel.Changelog == 0 then
         changelogBtn.Visible = false
         userBtn.Position = UDim2.new(0.5, -22, 0, bottomY)
         discordBtn.Position = UDim2.new(0.5, 22, 0, bottomY)
     end
 
-    -- shop panel anchored to bottom of mainFrame with correct sizing
     if showShop then
         local shopDivider = Instance.new("Frame")
         shopDivider.Size = UDim2.new(1, 0, 0, shopDividerHeight)
         shopDivider.Position = UDim2.new(0, 0, 1, -shopHeight - shopDividerHeight)
         shopDivider.AnchorPoint = Vector2.new(0, 0)
-        shopDivider.BackgroundColor3 = Aether.Theme.Accent
+        shopDivider.BackgroundColor3 = Arqel.Theme.Accent
         shopDivider.BackgroundTransparency = 0.6
         shopDivider.BorderSizePixel = 0
         shopDivider.Parent = mainFrame
@@ -2139,19 +2146,18 @@ local function BuildKeyUI()
         shopFrame.Size = UDim2.new(1, 0, 0, shopHeight)
         shopFrame.Position = UDim2.new(0, 0, 1, -shopHeight)
         shopFrame.AnchorPoint = Vector2.new(0, 0)
-        shopFrame.BackgroundColor3 = Aether.Theme.Header
+        shopFrame.BackgroundColor3 = Arqel.Theme.Header
         shopFrame.BorderSizePixel = 0
         shopFrame.ClipsDescendants = true
         shopFrame.Parent = mainFrame
 
-        -- bottom corner fix so rounded corners only show on bottom
         local shopCorner = Instance.new("UICorner", shopFrame)
         shopCorner.CornerRadius = UDim.new(0, 4)
 
         local shopTopFix = Instance.new("Frame")
         shopTopFix.Size = UDim2.new(1, 0, 0, 8)
         shopTopFix.Position = UDim2.new(0, 0, 0, 0)
-        shopTopFix.BackgroundColor3 = Aether.Theme.Header
+        shopTopFix.BackgroundColor3 = Arqel.Theme.Header
         shopTopFix.BorderSizePixel = 0
         shopTopFix.Parent = shopFrame
 
@@ -2162,14 +2168,14 @@ local function BuildKeyUI()
         shopIconWrapper.Size = UDim2.new(0, shopIconSize + 4, 0, shopIconSize + 4)
         shopIconWrapper.Position = UDim2.new(0, shopPadding, 0.5, 0)
         shopIconWrapper.AnchorPoint = Vector2.new(0, 0.5)
-        shopIconWrapper.BackgroundColor3 = Aether.Theme.Accent
+        shopIconWrapper.BackgroundColor3 = Arqel.Theme.Accent
         shopIconWrapper.BackgroundTransparency = 0.7
         shopIconWrapper.BorderSizePixel = 0
         shopIconWrapper.Parent = shopFrame
         Instance.new("UICorner", shopIconWrapper).CornerRadius = UDim.new(0, 4)
 
         local shopIconStroke = Instance.new("UIStroke", shopIconWrapper)
-        shopIconStroke.Color = Aether.Theme.Accent
+        shopIconStroke.Color = Arqel.Theme.Accent
         shopIconStroke.Thickness = 1
         shopIconStroke.Transparency = 0.5
 
@@ -2179,7 +2185,7 @@ local function BuildKeyUI()
         shopIconImg.AnchorPoint = Vector2.new(0.5, 0.5)
         shopIconImg.BackgroundTransparency = 1
         shopIconImg.Image = getShopIcon()
-        shopIconImg.ImageColor3 = Aether.Theme.Text
+        shopIconImg.ImageColor3 = Arqel.Theme.Text
         shopIconImg.ScaleType = Enum.ScaleType.Fit
         shopIconImg.Parent = shopIconWrapper
 
@@ -2191,8 +2197,8 @@ local function BuildKeyUI()
         shopTitle.Size = UDim2.new(0, textAreaWidth, 0, 18)
         shopTitle.Position = UDim2.new(0, textStartX, 0, 9)
         shopTitle.BackgroundTransparency = 1
-        shopTitle.Text = Aether.Shop.Title
-        shopTitle.TextColor3 = Aether.Theme.Text
+        shopTitle.Text = Arqel.Shop.Title
+        shopTitle.TextColor3 = Arqel.Theme.Text
         shopTitle.TextSize = mobile and 13 or 14
         shopTitle.Font = Enum.Font.ArimoBold
         shopTitle.TextXAlignment = Enum.TextXAlignment.Left
@@ -2203,8 +2209,8 @@ local function BuildKeyUI()
         shopSubtitle.Size = UDim2.new(0, textAreaWidth, 0, 14)
         shopSubtitle.Position = UDim2.new(0, textStartX, 0, 29)
         shopSubtitle.BackgroundTransparency = 1
-        shopSubtitle.Text = Aether.Shop.Subtitle
-        shopSubtitle.TextColor3 = Aether.Theme.TextDim
+        shopSubtitle.Text = Arqel.Shop.Subtitle
+        shopSubtitle.TextColor3 = Arqel.Theme.TextDim
         shopSubtitle.TextSize = mobile and 10 or 11
         shopSubtitle.Font = Enum.Font.ArimoBold
         shopSubtitle.TextXAlignment = Enum.TextXAlignment.Left
@@ -2215,7 +2221,7 @@ local function BuildKeyUI()
         buyBtn.Size = UDim2.new(0, buyBtnWidth, 0, 30)
         buyBtn.Position = UDim2.new(1, -shopPadding, 0.5, 0)
         buyBtn.AnchorPoint = Vector2.new(1, 0.5)
-        buyBtn.BackgroundColor3 = Aether.Theme.Accent
+        buyBtn.BackgroundColor3 = Arqel.Theme.Accent
         buyBtn.BorderSizePixel = 0
         buyBtn.Text = ""
         buyBtn.AutoButtonColor = false
@@ -2223,7 +2229,7 @@ local function BuildKeyUI()
         Instance.new("UICorner", buyBtn).CornerRadius = UDim.new(0, 4)
 
         local buyBtnStroke = Instance.new("UIStroke", buyBtn)
-        buyBtnStroke.Color = Aether.Theme.AccentHover
+        buyBtnStroke.Color = Arqel.Theme.AccentHover
         buyBtnStroke.Thickness = 1
         buyBtnStroke.Transparency = 0.5
 
@@ -2242,7 +2248,7 @@ local function BuildKeyUI()
         buyIcon.Size = UDim2.new(0, 14, 0, 14)
         buyIcon.BackgroundTransparency = 1
         buyIcon.Image = getIcon("cart")
-        buyIcon.ImageColor3 = Aether.Theme.Text
+        buyIcon.ImageColor3 = Arqel.Theme.Text
         buyIcon.ScaleType = Enum.ScaleType.Fit
         buyIcon.LayoutOrder = 1
         buyIcon.Parent = buyContent
@@ -2251,19 +2257,19 @@ local function BuildKeyUI()
         buyLabel.Size = UDim2.new(0, 0, 0, 14)
         buyLabel.AutomaticSize = Enum.AutomaticSize.X
         buyLabel.BackgroundTransparency = 1
-        buyLabel.Text = Aether.Shop.ButtonText
-        buyLabel.TextColor3 = Aether.Theme.Text
+        buyLabel.Text = Arqel.Shop.ButtonText
+        buyLabel.TextColor3 = Arqel.Theme.Text
         buyLabel.TextSize = mobile and 11 or 12
         buyLabel.Font = Enum.Font.ArimoBold
         buyLabel.LayoutOrder = 2
         buyLabel.Parent = buyContent
 
-        buyBtn.MouseEnter:Connect(function() TweenService:Create(buyBtn, TweenInfo.new(0.15), {BackgroundColor3 = Aether.Theme.AccentHover}):Play() end)
-        buyBtn.MouseLeave:Connect(function() TweenService:Create(buyBtn, TweenInfo.new(0.15), {BackgroundColor3 = Aether.Theme.Accent}):Play() end)
+        buyBtn.MouseEnter:Connect(function() TweenService:Create(buyBtn, TweenInfo.new(0.15), {BackgroundColor3 = Arqel.Theme.AccentHover}):Play() end)
+        buyBtn.MouseLeave:Connect(function() TweenService:Create(buyBtn, TweenInfo.new(0.15), {BackgroundColor3 = Arqel.Theme.Accent}):Play() end)
         buyBtn.MouseButton1Click:Connect(function()
-            if Aether.Shop.Link ~= "" then
-                pcall(function() setclipboard(Aether.Shop.Link) end)
-                Aether:Notify("Shop", "Shop link copied to clipboard!", 2, "copy")
+            if Arqel.Shop.Link ~= "" then
+                pcall(function() setclipboard(Arqel.Shop.Link) end)
+                Arqel:Notify("Shop", "Shop link copied to clipboard!", 2, "copy")
             end
         end)
     end
@@ -2278,9 +2284,9 @@ local function BuildKeyUI()
     local function setStatus(state, customText)
         if spinConnection then spinConnection:Disconnect() spinConnection = nil statusIcon.Rotation = 0 end
         if dotsThread then task.cancel(dotsThread) dotsThread = nil end
-        local color, icon, text = Aether.Theme.StatusIdle, getIcon("lock"), customText or "No key detected"
+        local color, icon, text = Arqel.Theme.StatusIdle, getIcon("lock"), customText or "No key detected"
         if state == "verifying" then
-            color, icon, text = Aether.Theme.Accent, getIcon("loading"), "Verifying key"
+            color, icon, text = Arqel.Theme.Accent, getIcon("loading"), "Verifying key"
             spinConnection = RunService.Heartbeat:Connect(function(dt)
                 if statusIcon and statusIcon.Parent then statusIcon.Rotation = (statusIcon.Rotation + dt * 360) % 360
                 else if spinConnection then spinConnection:Disconnect() end end
@@ -2291,8 +2297,8 @@ local function BuildKeyUI()
                     statusLabel.Text = text .. dots[i] i = (i % #dots) + 1 task.wait(0.4)
                 end
             end)
-        elseif state == "success" then color, icon, text = Aether.Theme.Success, getIcon("check"), customText or "Access Granted"
-        elseif state == "error" then color, icon, text = Aether.Theme.Error, getIcon("alert"), customText or "Invalid Key" end
+        elseif state == "success" then color, icon, text = Arqel.Theme.Success, getIcon("check"), customText or "Access Granted"
+        elseif state == "error" then color, icon, text = Arqel.Theme.Error, getIcon("alert"), customText or "Invalid Key" end
         TweenService:Create(statusLabel, TweenInfo.new(0.3), {TextColor3 = color}):Play()
         TweenService:Create(statusIcon, TweenInfo.new(0.3), {ImageColor3 = color}):Play()
         statusLabel.Text = text statusIcon.Image = icon
@@ -2305,19 +2311,19 @@ local function BuildKeyUI()
     end
 
     closeBtn.MouseButton1Click:Connect(function()
-        Aether:Notify("Goodbye", "See you next time!", 2, "close")
+        Arqel:Notify("Goodbye", "See you next time!", 2, "close")
         closeDoorsThenExit(function()
             fullCleanup()
             TweenService:Create(container, TweenInfo.new(0.4, Enum.EasingStyle.Quart), {Position = UDim2.new(0.5, 0, -0.5, 0)}):Play()
             TweenService:Create(mainFrame, TweenInfo.new(0.3), {BackgroundTransparency = 1}):Play()
             task.wait(0.4) screenGui:Destroy()
-            if Aether.Callbacks.OnClose then Aether.Callbacks.OnClose() end
+            if Arqel.Callbacks.OnClose then Arqel.Callbacks.OnClose() end
         end)
     end)
 
     local function handleRedeem()
         local key = textBox.Text:gsub("%s+", "")
-        if key == "" then Aether:Notify("Error", "Please enter your key", 3, "warning") return end
+        if key == "" then Arqel:Notify("Error", "Please enter your key", 3, "warning") return end
         setStatus("verifying") redeemBtn.Active = false task.wait(0.3)
         local valid, errorMsg = false, "Invalid key"
         if Internal.ValidateFunction then
@@ -2340,28 +2346,36 @@ local function BuildKeyUI()
         end
         redeemBtn.Active = true
         if valid then
-            saveKey(key) getgenv().SCRIPT_KEY = key getgenv().AetherLoaded = false
-            setStatus("success") Aether:Notify("Success", "Key validated successfully!", 2, "success") task.wait(1)
+            saveKey(key) getgenv().SCRIPT_KEY = key getgenv().ArqelLoaded = false
+            setStatus("success") Arqel:Notify("Success", "Key validated successfully!", 2, "success") task.wait(1)
             closeDoorsThenExit(function()
                 disableBlur()
                 TweenService:Create(container, TweenInfo.new(0.4, Enum.EasingStyle.Quart), {Position = UDim2.new(0.5, 0, -0.5, 0)}):Play()
                 TweenService:Create(mainFrame, TweenInfo.new(0.3), {BackgroundTransparency = 1}):Play()
                 task.wait(0.4) screenGui:Destroy()
-                if not Internal.IsJunkieMode and Aether.Callbacks.OnSuccess then Aether.Callbacks.OnSuccess() end
+                if not Internal.IsJunkieMode and Arqel.Callbacks.OnSuccess then Arqel.Callbacks.OnSuccess() end
             end)
         else
-            setStatus("error", errorMsg) Aether:Notify("Invalid", errorMsg, 4, "error")
-            if Aether.Callbacks.OnFail then Aether.Callbacks.OnFail(errorMsg) end
+            setStatus("error", errorMsg) Arqel:Notify("Invalid", errorMsg, 4, "error")
+            if Arqel.Callbacks.OnFail then Arqel.Callbacks.OnFail(errorMsg) end
         end
     end
 
     redeemBtn.MouseButton1Click:Connect(handleRedeem)
     acquireBtn.MouseButton1Click:Connect(function()
-        if Aether.Links.GetKey ~= "" then Aether:Notify("Copied", "Key link copied!", 3, "copy") pcall(function() setclipboard(Aether.Links.GetKey) end)
-        else Aether:Notify("Error", "No key link set", 3, "warning") end
+        if Arqel.Options.NoGetKey then
+            Arqel:Notify("Unavailable", "Get Key is unavailable", 3, "nogetkey")
+            return
+        end
+        if Arqel.Links.GetKey ~= "" then
+            Arqel:Notify("Copied", "Key link copied!", 3, "copy")
+            pcall(function() setclipboard(Arqel.Links.GetKey) end)
+        else
+            Arqel:Notify("Error", "No key link set", 3, "warning")
+        end
     end)
     discordBtn.MouseButton1Click:Connect(function()
-        if Aether.Links.Discord ~= "" then Aether:Notify("Discord", "Invite link copied!", 2, "discord") pcall(function() setclipboard(Aether.Links.Discord) end) end
+        if Arqel.Links.Discord ~= "" then Arqel:Notify("Discord", "Invite link copied!", 2, "discord") pcall(function() setclipboard(Arqel.Links.Discord) end) end
     end)
     textBox.FocusLost:Connect(function(enter) if enter then handleRedeem() end end)
 
@@ -2371,41 +2385,41 @@ local function BuildKeyUI()
     doors.open(function()
         task.wait(0.2)
         ui.toggleUser(userIcon)
-        if #Aether.Changelog > 0 then task.wait(0.3) ui.toggleCL(changelogIcon) end
+        if #Arqel.Changelog > 0 then task.wait(0.3) ui.toggleCL(changelogIcon) end
     end)
 end
 
-function Aether:Launch()
+function Arqel:Launch()
     Internal.IsJunkieMode = false
-    Internal.ValidateFunction = Aether.Callbacks.OnVerify
+    Internal.ValidateFunction = Arqel.Callbacks.OnVerify
     local existingKey = getgenv().SCRIPT_KEY
     if existingKey and existingKey ~= "" then
         if existingKey == "KEYLESS" then
-            Aether:Notify("Executed", "Script loaded successfully!", 2, "success")
-            if Aether.Callbacks.OnSuccess then Aether.Callbacks.OnSuccess() end return
+            Arqel:Notify("Executed", "Script loaded successfully!", 2, "success")
+            if Arqel.Callbacks.OnSuccess then Arqel.Callbacks.OnSuccess() end return
         elseif Internal.ValidateFunction and validateKey(existingKey, Internal.ValidateFunction) then
-            Aether:Notify("Executed", "Script loaded successfully!", 2, "success")
-            if Aether.Callbacks.OnSuccess then Aether.Callbacks.OnSuccess() end return
+            Arqel:Notify("Executed", "Script loaded successfully!", 2, "success")
+            if Arqel.Callbacks.OnSuccess then Arqel.Callbacks.OnSuccess() end return
         end
         getgenv().SCRIPT_KEY = nil
     end
-    getgenv().AetherClosed = false
+    getgenv().ArqelClosed = false
     EnsureIconsReady(function()
-        if Aether.Options.Keyless == true then
-            if Aether.Options.KeylessUI == false then handleKeylessSkip() return end
+        if Arqel.Options.Keyless == true then
+            if Arqel.Options.KeylessUI == false then handleKeylessSkip() return end
             BuildKeylessUI()
             while not getgenv().SCRIPT_KEY do task.wait(0.1) end
             return
         end
-        if Aether.Storage.AutoLoad and Internal.ValidateFunction then
+        if Arqel.Storage.AutoLoad and Internal.ValidateFunction then
             local savedKey = loadKey()
             if savedKey and savedKey ~= "" then
-                Aether:Notify("Checking", "Validating saved key...", 2, "shield") task.wait(0.5)
+                Arqel:Notify("Checking", "Validating saved key...", 2, "shield") task.wait(0.5)
                 if validateKey(savedKey, Internal.ValidateFunction) then
                     getgenv().SCRIPT_KEY = savedKey
-                    Aether:Notify("Welcome Back", "Key validated!", 2, "success")
-                    if Aether.Callbacks.OnSuccess then Aether.Callbacks.OnSuccess() end return
-                else clearKey() Aether:Notify("Expired", "Saved key is no longer valid", 3, "warning") task.wait(1) end
+                    Arqel:Notify("Welcome Back", "Key validated!", 2, "success")
+                    if Arqel.Callbacks.OnSuccess then Arqel.Callbacks.OnSuccess() end return
+                else clearKey() Arqel:Notify("Expired", "Saved key is no longer valid", 3, "warning") task.wait(1) end
             end
         end
         BuildKeyUI()
@@ -2413,48 +2427,48 @@ function Aether:Launch()
     end)
 end
 
-function Aether:LaunchJunkie(config)
+function Arqel:LaunchJunkie(config)
     assert(config and config.Service and config.Identifier and config.Provider, "Config required: Service, Identifier, Provider")
     Internal.IsJunkieMode = true
     local existingKey = getgenv().SCRIPT_KEY
     if existingKey and existingKey ~= "" then
-        Aether:Notify("Executed", "Script loaded successfully!", 2, "success")
-        if Aether.Callbacks.OnSuccess then Aether.Callbacks.OnSuccess() end return
+        Arqel:Notify("Executed", "Script loaded successfully!", 2, "success")
+        if Arqel.Callbacks.OnSuccess then Arqel.Callbacks.OnSuccess() end return
     end
-    getgenv().AetherClosed = false
+    getgenv().ArqelClosed = false
     EnsureIconsReady(function()
         local success, Junkie = pcall(function() return loadstring(game:HttpGet("https://jnkie.com/sdk/library.lua"))() end)
-        if not success or not Junkie then Aether:Notify("Error", "Failed to load Junkie SDK", 5, "error") return end
+        if not success or not Junkie then Arqel:Notify("Error", "Failed to load Junkie SDK", 5, "error") return end
         Junkie.service = config.Service
         Junkie.identifier = config.Identifier
         Junkie.provider = config.Provider
         Internal.Junkie = Junkie
-        if Aether.Links.GetKey == "" then pcall(function() Aether.Links.GetKey = Junkie.get_key_link() end) end
+        if Arqel.Links.GetKey == "" then pcall(function() Arqel.Links.GetKey = Junkie.get_key_link() end) end
         Internal.ValidateFunction = function(key) return Junkie.check_key(key) end
-        if Aether.Options.Keyless == nil then
+        if Arqel.Options.Keyless == nil then
             local ks, kr = pcall(function() return Junkie.check_key("KEYLESS") end)
             if ks and kr and kr.valid then
-                if Aether.Options.KeylessUI == false then handleKeylessSkip() return end
+                if Arqel.Options.KeylessUI == false then handleKeylessSkip() return end
                 BuildKeylessUI()
                 while not getgenv().SCRIPT_KEY do task.wait(0.1) end
                 return
             end
-        elseif Aether.Options.Keyless == true then
-            if Aether.Options.KeylessUI == false then handleKeylessSkip() return end
+        elseif Arqel.Options.Keyless == true then
+            if Arqel.Options.KeylessUI == false then handleKeylessSkip() return end
             BuildKeylessUI()
             while not getgenv().SCRIPT_KEY do task.wait(0.1) end
             return
         end
-        if Aether.Storage.AutoLoad then
+        if Arqel.Storage.AutoLoad then
             local savedKey = loadKey()
             if savedKey and savedKey ~= "" then
-                Aether:Notify("Checking", "Validating saved key...", 2, "shield") task.wait(0.5)
+                Arqel:Notify("Checking", "Validating saved key...", 2, "shield") task.wait(0.5)
                 local vs, vr = pcall(function() return Junkie.check_key(savedKey) end)
                 if vs and vr and vr.valid then
                     getgenv().SCRIPT_KEY = savedKey
-                    Aether:Notify("Welcome Back", "Key validated!", 2, "success")
-                    if Aether.Callbacks.OnSuccess then Aether.Callbacks.OnSuccess() end return
-                else clearKey() Aether:Notify("Expired", "Saved key is no longer valid", 3, "warning") task.wait(1) end
+                    Arqel:Notify("Welcome Back", "Key validated!", 2, "success")
+                    if Arqel.Callbacks.OnSuccess then Arqel.Callbacks.OnSuccess() end return
+                else clearKey() Arqel:Notify("Expired", "Saved key is no longer valid", 3, "warning") task.wait(1) end
             end
         end
         BuildKeyUI()
@@ -2462,8 +2476,8 @@ function Aether:LaunchJunkie(config)
     end)
 end
 
-function Aether:GetSavedKey() return loadKey() end
-function Aether:ClearSavedKey() return clearKey() end
+function Arqel:GetSavedKey() return loadKey() end
+function Arqel:ClearSavedKey() return clearKey() end
 
-getgenv().Aether = Aether
-return Aether
+getgenv().Arqel = Arqel
+return Arqel
